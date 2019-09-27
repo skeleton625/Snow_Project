@@ -45,4 +45,15 @@ public class AttackController : MonoBehaviour
         GameObject _clone = Instantiate(AttackBall, ballPosition, transform.rotation);
         _clone.GetComponent<MeshRenderer>().material = StaticObjects.getMaterial(playerAtt.getPlayerNumb());
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+
+        int nameLength = collision.gameObject.name.Length;
+        if (nameLength < 7)
+            return;
+
+        if (collision.gameObject.name.Substring(nameLength-7, 7) == "(Clone)")
+            Destroy(collision.gameObject);
+    }
 }
