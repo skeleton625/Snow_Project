@@ -43,17 +43,26 @@ public class AttackController : MonoBehaviour
     {
         Vector3 ballPosition = transform.position + transform.forward * 0.4f + transform.up*0.5f;
         GameObject _clone = Instantiate(AttackBall, ballPosition, transform.rotation);
+        _clone.name = "SnowBall_" + playerAtt.getPlayerNumb()+"_"+playerAtt.getAttackDamage();
         _clone.GetComponent<MeshRenderer>().material = StaticObjects.getMaterial(playerAtt.getPlayerNumb());
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-
-        int nameLength = collision.gameObject.name.Length;
-        if (nameLength < 7)
+        string ObjectName = collision.gameObject.name;
+        if (ObjectName.Length < AttackBall.name.Length)
             return;
 
-        if (collision.gameObject.name.Substring(nameLength-7, 7) == "(Clone)")
-            Destroy(collision.gameObject);
+        if(ObjectName.Substring(0, AttackBall.name.Length) == AttackBall.name)
+        {
+            string[] PlayerInfo = ObjectName.Split('_');
+
+            if (playerAtt.ToString() != PlayerInfo[1])
+            {
+                Debug.Log(playerAtt.getHealthBar());
+                playerAtt.setHealthBar(int.Parse(PlayerInfo[2]));
+                Destroy(collision.gameObject);
+            }
+        }
     }
 }

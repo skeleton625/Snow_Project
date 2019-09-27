@@ -11,9 +11,9 @@ public class PlayerAttribute : MonoBehaviour
     [SerializeField]
     private int PlayerNumb;
 
-    public void setHeadthBar(float health)
+    public void setHealthBar(float health)
     {
-        PlayerHealthBar = health;
+        PlayerHealthBar -= health;
     }
 
     public float getHealthBar()
