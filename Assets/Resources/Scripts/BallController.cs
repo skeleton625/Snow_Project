@@ -27,7 +27,7 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name.Substring(0, 4) == "Wall")
+        if (collision.gameObject.name == "Wall")
             Destroy(gameObject);
     }
 }
