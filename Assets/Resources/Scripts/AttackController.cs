@@ -10,7 +10,10 @@ public class AttackController : MonoBehaviour
     private GameObject AttackBall;
     [SerializeField]
     private float attackCycle;
+    [SerializeField]
+    private Vector3 defaultBallPos;
     private float curAttackTime;
+    
 
     private bool isAttack = true;
 
@@ -41,7 +44,7 @@ public class AttackController : MonoBehaviour
 
     private void Attack()
     {
-        Vector3 ballPosition = transform.position + transform.forward * 0.4f + transform.up*0.5f;
+        Vector3 ballPosition = transform.position + defaultBallPos;
         GameObject _clone = Instantiate(AttackBall, ballPosition, transform.rotation);
         _clone.name = "SnowBall_" + playerAtt.getPlayerNumb()+"_"+playerAtt.getAttackDamage();
         _clone.GetComponent<MeshRenderer>().material = StaticObjects.getMaterial(playerAtt.getPlayerNumb());
@@ -57,7 +60,7 @@ public class AttackController : MonoBehaviour
         {
             string[] PlayerInfo = ObjectName.Split('_');
 
-            if (playerAtt.ToString() != PlayerInfo[1])
+            if (playerAtt.getPlayerNumb().ToString() != PlayerInfo[1])
             {
                 Debug.Log(playerAtt.getHealthBar());
                 playerAtt.setHealthBar(int.Parse(PlayerInfo[2]));
