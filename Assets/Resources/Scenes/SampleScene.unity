@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -375,7 +375,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.2
+  m_Radius: 0.25
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0.5, z: 0}
@@ -404,7 +404,7 @@ MonoBehaviour:
   runSpeed: 8
   jumpForce: 3
   lookSensitivity: 8
-  limitRotationX: 5
+  limitRotationX: 0
 --- !u!54 &874665924
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -435,7 +435,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerAtt: {fileID: 874665926}
   AttackBall: {fileID: 1423433671}
-  attackCycle: 0.5
+  attackCycle: 0.25
+  defaultBallPos: {x: 0.4, y: 0.5, z: 0.2}
 --- !u!114 &874665926
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -549,36 +550,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &877215888
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 877215883}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2d0f87755008d8742a7fd309e11e1949, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerAtt: {fileID: 877215889}
-  AttackBall: {fileID: 1423433671}
-  attackCycle: 0.5
---- !u!114 &877215889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 877215883}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c167841d8d34017469546b127865c00a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PlayerHealthBar: 100
-  PlayerAttackDamage: 5
-  PlayerNumb: 1
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -590,7 +561,7 @@ GameObject:
   - component: {fileID: 963194228}
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Camera01
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -655,8 +626,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.6, y: 1, z: -1.2}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 874665922}
@@ -674,7 +645,7 @@ GameObject:
   - component: {fileID: 1239943255}
   - component: {fileID: 1239943254}
   - component: {fileID: 1239943253}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -692,7 +663,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1, y: 1, z: 1.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1239943254
 MeshRenderer:
@@ -841,7 +812,7 @@ Transform:
   m_GameObject: {fileID: 1423433671}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1, y: 0.6, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -858,7 +829,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d293076f2fda5840a65442851eb46f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballSpeed: 8
+  ballSpeed: 30
   limitTime: 5
 --- !u!54 &1423433677
 Rigidbody:
@@ -934,7 +905,7 @@ GameObject:
   - component: {fileID: 1968217279}
   - component: {fileID: 1968217278}
   - component: {fileID: 1968217277}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -952,7 +923,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1, y: 1, z: 1.5}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!23 &1968217278
 MeshRenderer:
