@@ -23,6 +23,10 @@ public class BallController : MonoBehaviour
             curTime += Time.deltaTime;
             transform.Translate(Vector3.forward * ballSpeed * Time.deltaTime);
         }
+        else if(name != "SnowBall")
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
