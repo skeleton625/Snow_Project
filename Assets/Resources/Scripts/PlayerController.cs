@@ -110,7 +110,6 @@ public class PlayerController : MonoBehaviour
         {
             Debug.Log(hitInfo.transform.name);
             applyCameraPos = hitInfo.point;
-            isnWall = false;
             StopAllCoroutines();
             StartCoroutine(moveGlobalCamera());
         }
@@ -118,7 +117,6 @@ public class PlayerController : MonoBehaviour
         else
         {
             applyCameraPos = originCameraPos.position;
-            isnWall = false;
             StopAllCoroutines();
             StartCoroutine(moveLocalCamera());
         }
@@ -162,7 +160,6 @@ public class PlayerController : MonoBehaviour
             }
 
             theCamera.transform.localPosition = originCameraPos.localPosition;
-            isnWall = true;
         }
     }
 
