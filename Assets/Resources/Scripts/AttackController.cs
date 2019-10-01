@@ -9,6 +9,8 @@ public class AttackController : MonoBehaviour
     [SerializeField]
     private GameObject AttackBall;
     [SerializeField]
+    private Transform ballGeneratePos;
+    [SerializeField]
     private float attackCycle;
     [SerializeField]
     private Vector3 defaultBallPos;
@@ -44,8 +46,7 @@ public class AttackController : MonoBehaviour
 
     private void Attack()
     {
-        Vector3 ballPosition = transform.position + defaultBallPos;
-        GameObject _clone = Instantiate(AttackBall, ballPosition, transform.rotation);
+        GameObject _clone = Instantiate(AttackBall,ballGeneratePos.position, transform.rotation);
         _clone.name = "SnowBall_" + playerAtt.getPlayerNumb()+"_"+playerAtt.getAttackDamage();
         _clone.GetComponent<MeshRenderer>().material = StaticObjects.getMaterial(playerAtt.getPlayerNumb());
     }
