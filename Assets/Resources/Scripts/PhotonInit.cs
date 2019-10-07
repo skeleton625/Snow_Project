@@ -5,6 +5,9 @@ using Photon;
 
 public class PhotonInit : Photon.PunBehaviour
 {
+    [SerializeField]
+    private GameObject Player;
+
     void Awake()
     {
         // PhotonNetwork에 정의된 Snow_Project에 버전별(1.0)로 접근
@@ -35,11 +38,20 @@ public class PhotonInit : Photon.PunBehaviour
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined room");
+
+        StartCoroutine(CreatePlayer());
     }
 
     // 게임 네트워크의 세부 사항을  출력하는 GUI 함수
     private void OnGUI()
     {
         GUILayout.Label(PhotonNetwork.connectionStateDetailed.ToString());
+    }
+
+    IEnumerator CreatePlayer()
+    {
+        PhotonNetwork.Instantiate(Player.name, new Vector3(5, 0, 5), Quaternion.identity, 0);
+
+        yield return null;
     }
 }
