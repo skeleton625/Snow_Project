@@ -7,17 +7,21 @@ public class AttackController : MonoBehaviour
     [SerializeField]
     private PlayerAttribute playerAtt;
     [SerializeField]
-    private GameObject AttackBall;
-    [SerializeField]
     private Transform ballGeneratePos;
     [SerializeField]
     private float attackCycle;
     [SerializeField]
     private Vector3 defaultBallPos;
     private float curAttackTime;
-    
+    private GameObject AttackBall;
+
 
     private bool isAttack = true;
+
+    void Start()
+    {
+        AttackBall = Resources.Load("Prefabs/SnowBall") as GameObject;
+    }
 
     // Update is called once per frame
     void Update()
