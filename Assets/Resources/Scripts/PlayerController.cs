@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
     private Vector3 targetPos;
     private float rayDist;
     private Vector3 applyCameraPos;
+    private PhotonView pv;
 
     // Start is called before the first frame update
     void Start()
@@ -52,15 +53,19 @@ public class PlayerController : MonoBehaviour
         applySpeed = walkSpeed;
         rayDist = Mathf.Sqrt(originCameraPos.localPosition.y * originCameraPos.localPosition.y +
                                 originCameraPos.localPosition.z * originCameraPos.localPosition.z);
+        pv = GetComponent<PhotonView>();
     }
 
     // 물리적인 이동을 담당하는 Update 함수
     private void FixedUpdate()
     {
-        TryRun();
-        Move();
-        setCharacterRotation();
-        setCameraPosition();
+        if(pv.isMine)
+        {
+            TryRun();
+            Move();
+            setCharacterRotation();
+            setCameraPosition();
+        }
     }
 
     // 캐릭터의 이동 함수
@@ -120,8 +125,6 @@ public class PlayerController : MonoBehaviour
             StopAllCoroutines();
             StartCoroutine(moveLocalCamera());
         }
-
-            
     }
 
     private IEnumerator moveGlobalCamera()
