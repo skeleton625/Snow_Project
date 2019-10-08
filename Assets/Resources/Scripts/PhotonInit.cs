@@ -6,7 +6,9 @@ using Photon;
 public class PhotonInit : Photon.PunBehaviour
 {
     [SerializeField]
-    private GameObject Player;
+    private GameObject PlayerModel;
+    [SerializeField]
+    private Camera MainCamera;
 
     void Awake()
     {
@@ -50,8 +52,10 @@ public class PhotonInit : Photon.PunBehaviour
 
     IEnumerator CreatePlayer()
     {
-        PhotonNetwork.Instantiate(Player.name, new Vector3(5, 0, 5), Quaternion.identity, 0);
-
+        GameObject Player = PhotonNetwork.Instantiate(PlayerModel.name, new Vector3(5, 0, 5), Quaternion.identity, 0);
+        Player.GetComponent<PlayerController>().isControllable = true;
+        Player.GetComponent<AttackController>().isControllable = true;
+        Player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
         yield return null;
     }
 }
