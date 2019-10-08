@@ -4,29 +4,36 @@ using UnityEngine;
 
 public class AttackController : MonoBehaviour
 {
-    [SerializeField]
-    private PlayerAttribute playerAtt;
-    [SerializeField]
-    private Transform ballGeneratePos;
+    public bool isControllable;
+
+    // 공격 주기 변수
     [SerializeField]
     private float attackCycle;
+    // 공격 눈덩이의 생성 위치
     [SerializeField]
-    private Vector3 defaultBallPos;
+    private Transform ballGeneratePos;
+
     private float curAttackTime;
     private GameObject AttackBall;
-
+    private PlayerAttribute playerAtt;
+    private PhotonView pv;
 
     private bool isAttack = true;
 
     void Start()
     {
-        AttackBall = Resources.Load("Prefabs/SnowBall") as GameObject;
+        pv = GetComponent<PhotonView>();
+        playerAtt = GetComponent<PlayerAttribute>();
+        AttackBall = Resources.Load("SnowBall") as GameObject;
     }
 
     // Update is called once per frame
     void Update()
     {
-        TryAttack();
+        if(isControllable && pv.isMine)
+        {
+            TryAttack();
+        }
     }
 
     private void TryAttack()
@@ -50,7 +57,7 @@ public class AttackController : MonoBehaviour
 
     private void Attack()
     {
-        GameObject _clone = Instantiate(AttackBall,ballGeneratePos.position, transform.rotation);
+        GameObject _clone = PhotonNetwork.Instantiate(AttackBall.name,ballGeneratePos.position, transform.rotation, 0);
         _clone.name = "SnowBall_" + playerAtt.getPlayerNumb()+"_"+playerAtt.getAttackDamage();
         _clone.GetComponent<MeshRenderer>().material = StaticObjects.getMaterial(playerAtt.getPlayerNumb());
     }
