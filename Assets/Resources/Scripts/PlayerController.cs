@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : Photon.PunBehaviour
 {
-    // Player Character의 RigidBody 객체
-    [SerializeField]
-    private Rigidbody Character;
-
-    // Player Character의 Animator 객체
-    [SerializeField]
-    private Animator charAnim;
+    // 현재 Player 오브젝트 사용 여부를 확인하는 변수
+    public bool isControllable;
+    // Player Camera 오브젝트
+    public Camera PlayerCamera;
 
     // 카메라의 원래 위치 객체
     [SerializeField]
@@ -18,48 +15,51 @@ public class PlayerController : MonoBehaviour
     // Ray를 발사하는 위치 객체
     [SerializeField]
     private Transform rayPosition;
-
-    // 걷기, 달리기, 현재 속도 변수
+    // 걷고 있는 속도 변수
     [SerializeField]
     private float walkSpeed;
+    // 달리는 속도 변수
     [SerializeField]
     private float runSpeed;
-    private float applySpeed;
-    // 걷는지 달리는지 판단하는 변수
-    private bool isWalk;
-    private bool isRun;
-    // 캐릭터의 이전 위치 백터
-    private Vector3 prePosition;
-
     // 카메라 민감도 변수
     [SerializeField]
     private float lookSensitivity;
 
+    // Player Character의 RigidBody 객체
+    private Rigidbody Character;
+    // Player Character의 Animator 객체
+    private Animator charAnim;
+    // 현재 달리기 속도 변수
+    private float applySpeed;
     // 카메라 이동과 관련된 객체들
-    [SerializeField]
-    private Camera theCamera;
     private float currentRotationY;
-
+    // 걷고 있는 여부를 확인하는 변수
+    private bool isWalk;
+    // 달리고 있는 여부를 확인하는 변수
+    private bool isRun;
     // 오브젝트 통과를 억제할 객체들
     private RaycastHit hitInfo;
     private Vector3 targetPos;
-    private float rayDist;
     private Vector3 applyCameraPos;
+    private float rayDist;
+    // Photon Newtwork 객체
     private PhotonView pv;
 
     // Start is called before the first frame update
     void Start()
     {
+        Character = GetComponent<Rigidbody>();
+        charAnim = GetComponent<Animator>();
+        pv = GetComponent<PhotonView>();
         applySpeed = walkSpeed;
         rayDist = Mathf.Sqrt(originCameraPos.localPosition.y * originCameraPos.localPosition.y +
                                 originCameraPos.localPosition.z * originCameraPos.localPosition.z);
-        pv = GetComponent<PhotonView>();
     }
 
     // 물리적인 이동을 담당하는 Update 함수
     private void FixedUpdate()
     {
-        if(pv.isMine)
+        if(isControllable && pv.isMine)
         {
             TryRun();
             Move();
@@ -92,6 +92,30 @@ public class PlayerController : MonoBehaviour
         charAnim.SetFloat("SideWalk", _moveDirX);
     }
 
+    // 달리기 시도 함수
+    private void TryRun()
+    {
+        if (Input.GetKey(KeyCode.LeftShift))
+            Running();
+        else
+            stopRunning();
+        charAnim.SetBool("Running", isRun);
+    }
+
+    // 달릴 때의 함수
+    private void Running()
+    {
+        isRun = true;
+        applySpeed = runSpeed;
+    }
+
+    // 달리기를 멈췄을 때의 함수
+    private void stopRunning()
+    {
+        isRun = false;
+        applySpeed = walkSpeed;
+    }
+
     // 캐릭터의 방향 전환 함수
     private void setCharacterRotation()
     {
@@ -101,6 +125,7 @@ public class PlayerController : MonoBehaviour
         currentRotationY += _yRotation * lookSensitivity;
         // Character의 지역 Y 축에 대한 회전 값 정의 -> 캐릭터 방향 회전
         gameObject.transform.localEulerAngles = new Vector3(0, currentRotationY, 0);
+        PlayerCamera.transform.parent = gameObject.transform;
     }
 
     // 카메라의 오브젝트 통과를 억제하는 함수
@@ -129,64 +154,40 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator moveGlobalCamera()
     {
-        if(theCamera.transform.position != applyCameraPos)
+        if(PlayerCamera.transform.position != applyCameraPos)
         {
             int cnt = 0;
             while (true)
             {
-                theCamera.transform.position =
-                    Vector3.Lerp(theCamera.transform.position, applyCameraPos, 0.1f);
+                PlayerCamera.transform.position =
+                    Vector3.Lerp(PlayerCamera.transform.position, applyCameraPos, 0.1f);
                 if (cnt > 15) break;
                 else ++cnt;
 
                 yield return null;
             }
 
-            theCamera.transform.position =
+            PlayerCamera.transform.position =
                 applyCameraPos;
         }
     }
 
     private IEnumerator moveLocalCamera()
     {
-        if (theCamera.transform.localPosition != originCameraPos.localPosition)
+        if (PlayerCamera.transform.localPosition != originCameraPos.localPosition)
         {
             int cnt = 0;
             while (true)
             {
-                theCamera.transform.position =
-                    Vector3.Lerp(theCamera.transform.position, applyCameraPos, 0.1f);
+                PlayerCamera.transform.position =
+                    Vector3.Lerp(PlayerCamera.transform.position, applyCameraPos, 0.1f);
                 if (cnt > 15) break;
                 else ++cnt;
 
                 yield return null;
             }
 
-            theCamera.transform.localPosition = originCameraPos.localPosition;
+            PlayerCamera.transform.localPosition = originCameraPos.localPosition;
         }
-    }
-
-    // 달리기 시도 함수
-    private void TryRun()
-    {
-        if (Input.GetKey(KeyCode.LeftShift))
-            Running();
-        else
-            stopRunning();
-        charAnim.SetBool("Running", isRun);
-    }
-
-    // 달릴 때의 함수
-    private void Running()
-    {
-        isRun = true;
-        applySpeed = runSpeed;
-    }
-
-    // 달리기를 멈췄을 때의 함수
-    private void stopRunning()
-    {
-        isRun = false;
-        applySpeed = walkSpeed;
     }
 }
