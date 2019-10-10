@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-public class PlayerController : Photon.PunBehaviour
+using Photon.Pun;
+public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
     // 현재 Player 오브젝트 사용 여부를 확인하는 변수
     public bool isControllable;
@@ -37,6 +37,8 @@ public class PlayerController : Photon.PunBehaviour
     private bool isWalk;
     // 달리고 있는 여부를 확인하는 변수
     private bool isRun;
+    // 좌우 이동에 대한 변수
+    private float sideWalk;
     // 오브젝트 통과를 억제할 객체들
     private RaycastHit hitInfo;
     private Vector3 targetPos;
@@ -44,6 +46,10 @@ public class PlayerController : Photon.PunBehaviour
     private float rayDist;
     // Photon Newtwork 객체
     private PhotonView pv;
+
+    // 상대방 플레이어에 대한 위치, 회전 변수
+    private Vector3 currPos;
+    private Quaternion currRot;
 
     // Start is called before the first frame update
     void Start()
@@ -59,37 +65,62 @@ public class PlayerController : Photon.PunBehaviour
     // 물리적인 이동을 담당하는 Update 함수
     private void FixedUpdate()
     {
-        if(isControllable && pv.isMine)
+        if(pv.IsMine)
         {
             TryRun();
             Move();
             setCharacterRotation();
             setCameraPosition();
         }
+        else
+        {
+            Character.position = Vector3.Lerp(Character.position, currPos, Time.deltaTime * 10.0f);
+            gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, currRot, Time.deltaTime * 10.0f);
+        }
+        // Character의 움직임을 Animation에 적용
+        charAnim.SetBool("FrontWalk", isWalk);
+        charAnim.SetFloat("SideWalk", sideWalk);
+        charAnim.SetBool("Running", isRun);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.rotation);
+            stream.SendNext(isWalk);
+            stream.SendNext(isRun);
+            stream.SendNext(sideWalk);
+        }
+        else
+        {
+            currPos = (Vector3)stream.ReceiveNext();
+            currRot = (Quaternion)stream.ReceiveNext();
+            isWalk = (bool)stream.ReceiveNext();
+            isRun = (bool)stream.ReceiveNext();
+            sideWalk = (float)stream.ReceiveNext();
+        }
     }
 
     // 캐릭터의 이동 함수
     private void Move()
     {
-        float _moveDirX = Input.GetAxisRaw("Horizontal");
+        sideWalk = Input.GetAxisRaw("Horizontal");
         float _moveDirZ = Input.GetAxisRaw("Vertical");
-
+        
         // 수평, 수직에 대한 이동 백터
-        Vector3 _moveHorizontal = transform.right * _moveDirX;
+        Vector3 _moveHorizontal = transform.right * sideWalk;
         Vector3 _moveVertical = transform.forward * _moveDirZ;
         // 수평, 수직으로 정의된 Character의 이동 velocity
         // 방향(수평, 수직에 대한 정규화) * 속도 = 캐릭터의 움직임
         Character.velocity = (_moveHorizontal + _moveVertical).normalized * applySpeed;
 
         // 캐릭터가 움직였는지 확인
-        if (_moveDirZ != 0 || _moveDirX != 0)
+        if (_moveDirZ != 0 || sideWalk != 0)
             isWalk = true;
         else
             isWalk = false;
-
-        // Character의 움직임을 Animation에 적용
-        charAnim.SetBool("FrontWalk", isWalk);
-        charAnim.SetFloat("SideWalk", _moveDirX);
     }
 
     // 달리기 시도 함수
@@ -99,7 +130,6 @@ public class PlayerController : Photon.PunBehaviour
             Running();
         else
             stopRunning();
-        charAnim.SetBool("Running", isRun);
     }
 
     // 달릴 때의 함수
@@ -134,11 +164,9 @@ public class PlayerController : Photon.PunBehaviour
         targetPos = transform.up * originCameraPos.localPosition.y +
                    transform.forward * originCameraPos.localPosition.z;
         Physics.Raycast(rayPosition.position, targetPos, out hitInfo, rayDist);
-        Debug.DrawRay(rayPosition.position, targetPos, Color.green);
         // 카메라 Ray에 부딛히는 물체가 있을 경우
         if (hitInfo.point != Vector3.zero)
         {
-            Debug.Log(hitInfo.transform.name);
             applyCameraPos = hitInfo.point;
             StopAllCoroutines();
             StartCoroutine(moveGlobalCamera());
@@ -166,9 +194,7 @@ public class PlayerController : Photon.PunBehaviour
 
                 yield return null;
             }
-
-            PlayerCamera.transform.position =
-                applyCameraPos;
+            PlayerCamera.transform.position = applyCameraPos;
         }
     }
 
