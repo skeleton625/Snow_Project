@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
-public class PlayerAttribute : MonoBehaviour
+public class PlayerAttribute : MonoBehaviourPunCallbacks, IPunObservable
 {
     [SerializeField]
     private float PlayerHealthBar;
@@ -39,5 +40,10 @@ public class PlayerAttribute : MonoBehaviour
     public int getPlayerNumb()
     {
         return PlayerNumb;
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        throw new System.NotImplementedException();
     }
 }
