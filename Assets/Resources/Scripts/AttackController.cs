@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
+using Photon.Realtime;
 
-public class AttackController : MonoBehaviour
+public class AttackController : MonoBehaviourPunCallbacks
 {
     public bool isControllable;
+    private bool isAttack = false;
 
     // 공격 주기 변수
     [SerializeField]
@@ -13,12 +16,17 @@ public class AttackController : MonoBehaviour
     [SerializeField]
     private Transform ballGeneratePos;
 
+    // 플레이어가 공을 던진 후의 시간
     private float curAttackTime;
-    private GameObject AttackBall;
-    private PlayerAttribute playerAtt;
+    // Photon View 객체
     private PhotonView pv;
+    // 공격 오브젝트 객체
+    private GameObject AttackBall;
+    // 플레이어의 상태 객체
+    private PlayerAttribute playerAtt;
 
-    private bool isAttack = true;
+    private bool otherAttack = false;
+    private Vector3 otherGenerate;
 
     void Start()
     {
@@ -30,7 +38,7 @@ public class AttackController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(isControllable && pv.isMine)
+        if(pv.IsMine)
         {
             TryAttack();
         }
@@ -50,34 +58,16 @@ public class AttackController : MonoBehaviour
 
         if(Input.GetMouseButton(0) && isAttack)
         {
-            Attack();
+            Attack(ballGeneratePos.position, transform.rotation);
             isAttack = false;
         }
     }
 
-    private void Attack()
+    private void Attack(Vector3 ballPosition, Quaternion ballRotation)
     {
-        GameObject _clone = PhotonNetwork.Instantiate(AttackBall.name,ballGeneratePos.position, transform.rotation, 0);
-        _clone.name = "SnowBall_" + playerAtt.getPlayerNumb()+"_"+playerAtt.getAttackDamage();
+        GameObject _clone = PhotonNetwork.Instantiate(AttackBall.name, ballPosition, ballRotation, 0);
         _clone.GetComponent<MeshRenderer>().material = StaticObjects.getMaterial(playerAtt.getPlayerNumb());
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        string ObjectName = collision.gameObject.name;
-        if (ObjectName.Length < AttackBall.name.Length)
-            return;
-
-        if(ObjectName.Substring(0, AttackBall.name.Length) == AttackBall.name)
-        {
-            string[] PlayerInfo = ObjectName.Split('_');
-
-            if (playerAtt.getPlayerNumb().ToString() != PlayerInfo[1])
-            {
-                Debug.Log(playerAtt.getHealthBar());
-                playerAtt.setHealthBar(int.Parse(PlayerInfo[2]));
-                Destroy(collision.gameObject);
-            }
-        }
+        _clone.GetComponent<BallController>().ballDamage = playerAtt.getAttackDamage();
+        _clone.GetComponent<BallController>().ThrowPlayer = playerAtt.getPlayerNumb();
     }
 }

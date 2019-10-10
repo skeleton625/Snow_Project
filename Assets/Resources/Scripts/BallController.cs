@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Photon.Pun;
 
 public class BallController : MonoBehaviour
 {
@@ -10,6 +11,9 @@ public class BallController : MonoBehaviour
     private float limitTime;
     private float curTime;
 
+    public float ballDamage;
+    public int ThrowPlayer;
+
     // Update is called once per frame
     void Update()
     {
@@ -18,20 +22,25 @@ public class BallController : MonoBehaviour
 
     private void ThrowBall()
     {
-        if(curTime < limitTime)
+        if (curTime < limitTime)
         {
             curTime += Time.deltaTime;
             transform.Translate(Vector3.forward * ballSpeed * Time.deltaTime);
         }
-        else if(name != "SnowBall")
-        {
-            Destroy(gameObject);
-        }
+        else
+           Destroy(gameObject);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.name == "Wall")
-            Destroy(gameObject);
+        Debug.Log(collision.gameObject.name);
+        string objectName = collision.gameObject.name;
+        if(objectName != "SnowBall(Clone)" && objectName != "Wall" && objectName != (ThrowPlayer+""))
+        {
+            GameObject AttackedPlayer = collision.gameObject;
+            AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(ballDamage);
+            Debug.Log(AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar());
+        }
+        Destroy(gameObject);
     }
 }
