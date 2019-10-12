@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class BallController : MonoBehaviour
+public class BallController : MonoBehaviourPunCallbacks, IPunObservable
 {
     [SerializeField]
     private float ballSpeed;
@@ -11,6 +11,8 @@ public class BallController : MonoBehaviour
     private float limitTime;
     private float curTime;
 
+    private GameObject AttackedPlayer;
+    private int isAttacked;
     public float ballDamage;
     public int ThrowPlayer;
 
@@ -37,10 +39,30 @@ public class BallController : MonoBehaviour
         string objectName = collision.gameObject.name;
         if(objectName != "SnowBall(Clone)" && objectName != "Wall" && objectName != (ThrowPlayer+""))
         {
-            GameObject AttackedPlayer = collision.gameObject;
-            AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(ballDamage);
-            Debug.Log(AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar());
+            AttackedPlayer = collision.gameObject;
+            isAttacked = 1;
         }
         Destroy(gameObject);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        Debug.Log(isAttacked);
+        if (stream.IsWriting && isAttacked == 1)
+        {
+            stream.SendNext(ThrowPlayer);
+            stream.SendNext(ballDamage);
+            stream.SendNext(AttackedPlayer);
+            isAttacked = 2;
+        }
+        else if(isAttacked == 2)
+        {
+            int AttackPlayer = (int) stream.ReceiveNext();
+            float AttackDamage = (float) stream.ReceiveNext();
+            GameObject AttackedPlayer = (GameObject)stream.ReceiveNext();
+            AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(AttackDamage);
+            Debug.Log(AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar());
+            isAttacked = 0;
+        }
     }
 }
