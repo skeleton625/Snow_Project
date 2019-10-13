@@ -2584,7 +2584,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d0f87755008d8742a7fd309e11e1949, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isControllable: 0
   attackCycle: 0.3
   ballGeneratePos: {fileID: 1602785063804680133}
 --- !u!114 &1602785065165444846
