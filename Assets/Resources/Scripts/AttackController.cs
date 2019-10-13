@@ -2,13 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-using Photon.Realtime;
 
 public class AttackController : MonoBehaviourPunCallbacks
 {
-    public bool isControllable;
-    private bool isAttack = false;
-
     // 공격 주기 변수
     [SerializeField]
     private float attackCycle;
@@ -25,8 +21,7 @@ public class AttackController : MonoBehaviourPunCallbacks
     // 플레이어의 상태 객체
     private PlayerAttribute playerAtt;
 
-    private bool otherAttack = false;
-    private Vector3 otherGenerate;
+    private bool isAttack;
 
     void Start()
     {
@@ -39,9 +34,7 @@ public class AttackController : MonoBehaviourPunCallbacks
     void Update()
     {
         if(pv.IsMine)
-        {
             TryAttack();
-        }
     }
 
     private void TryAttack()
@@ -69,5 +62,15 @@ public class AttackController : MonoBehaviourPunCallbacks
         _clone.GetComponent<MeshRenderer>().material = StaticObjects.getMaterial(playerAtt.getPlayerNumb());
         _clone.GetComponent<BallController>().ballDamage = playerAtt.getAttackDamage();
         _clone.GetComponent<BallController>().ThrowPlayer = playerAtt.getPlayerNumb();
+    }
+
+    [PunRPC]
+    public void AttackingPlayer(int PlayerNumber, float PlayerDamage)
+    {
+        GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
+        AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(PlayerDamage);
+        Debug.LogFormat("Player {0} Health : {1}",
+                                                PlayerNumber, 
+                                                AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar());
     }
 }
