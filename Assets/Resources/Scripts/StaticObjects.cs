@@ -6,18 +6,18 @@ public class StaticObjects : MonoBehaviour
 {
     [SerializeField]
     private Material[] AttackBallMaterial;
-    private static Material[] outputMaterial;
+    private static Material[] OutputMaterial;
 
     void Start()
     {
-        outputMaterial = new Material[AttackBallMaterial.Length];
+        OutputMaterial = new Material[AttackBallMaterial.Length];
         for (int i = 0; i < AttackBallMaterial.Length; i++)
-            outputMaterial[i] = AttackBallMaterial[i];
+            OutputMaterial[i] = AttackBallMaterial[i];
     }
 
     public static Material getMaterial(int i)
     {
-        return outputMaterial[i];
+        return OutputMaterial[i];
     }
 
 }

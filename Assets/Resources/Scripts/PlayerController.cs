@@ -4,62 +4,63 @@ using UnityEngine;
 using Photon.Pun;
 public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 {
-    // 현재 Player 오브젝트 사용 여부를 확인하는 변수
-    public bool isControllable;
     // Player Camera 오브젝트
     public Camera PlayerCamera;
 
     // 카메라의 원래 위치 객체
     [SerializeField]
-    private Transform originCameraPos;
+    private Transform OiriginCameraPos;
     // Ray를 발사하는 위치 객체
     [SerializeField]
-    private Transform rayPosition;
+    private Transform RayPosition;
     // 걷고 있는 속도 변수
     [SerializeField]
-    private float walkSpeed;
+    private float WallSpeed;
     // 달리는 속도 변수
     [SerializeField]
-    private float runSpeed;
+    private float RunSpeed;
     // 카메라 민감도 변수
     [SerializeField]
-    private float lookSensitivity;
+    private float LookSensitivity;
 
     // Player Character의 RigidBody 객체
     private Rigidbody Character;
     // Player Character의 Animator 객체
-    private Animator charAnim;
+    private Animator CharAnimator;
     // 현재 달리기 속도 변수
-    private float applySpeed;
+    private float ApplySpeed;
     // 카메라 이동과 관련된 객체들
-    private float currentRotationY;
+    private float CurrentRotationY;
+
     // 걷고 있는 여부를 확인하는 변수
-    private bool isWalk;
+    private bool IsWalk;
     // 달리고 있는 여부를 확인하는 변수
-    private bool isRun;
+    private bool IsRun;
     // 좌우 이동에 대한 변수
-    private float sideWalk;
+    private float SideWalk;
+    
     // 오브젝트 통과를 억제할 객체들
-    private RaycastHit hitInfo;
-    private Vector3 targetPos;
-    private Vector3 applyCameraPos;
-    private float rayDist;
-    // Photon Newtwork 객체
-    private PhotonView pv;
+    private RaycastHit HitInfo;
+    private Vector3 TargetPos;
+    private Vector3 ApplyCameraPos;
+    private float RayDist;
 
     // 상대방 플레이어에 대한 위치, 회전 변수
-    private Vector3 currPos;
-    private Quaternion currRot;
+    private Vector3 CurrPos;
+    private Quaternion CurrRot;
+
+    // Photon Newtwork 객체
+    private PhotonView pv;
 
     // Start is called before the first frame update
     void Start()
     {
         Character = GetComponent<Rigidbody>();
-        charAnim = GetComponent<Animator>();
+        CharAnimator = GetComponent<Animator>();
         pv = GetComponent<PhotonView>();
-        applySpeed = walkSpeed;
-        rayDist = Mathf.Sqrt(originCameraPos.localPosition.y * originCameraPos.localPosition.y +
-                                originCameraPos.localPosition.z * originCameraPos.localPosition.z);
+        ApplySpeed = WallSpeed;
+        RayDist = Mathf.Sqrt(OiriginCameraPos.localPosition.y * OiriginCameraPos.localPosition.y +
+                                OiriginCameraPos.localPosition.z * OiriginCameraPos.localPosition.z);
         SettingOtherPlayers();
     }
 
@@ -75,13 +76,13 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         }
         else
         {
-            Character.position = Vector3.Lerp(Character.position, currPos, Time.deltaTime * 10.0f);
-            gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, currRot, Time.deltaTime * 10.0f);
+            Character.position = Vector3.Lerp(Character.position, CurrPos, Time.deltaTime * 10.0f);
+            gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, CurrRot, Time.deltaTime * 10.0f);
         }
         // Character의 움직임을 Animation에 적용
-        charAnim.SetBool("FrontWalk", isWalk);
-        charAnim.SetFloat("SideWalk", sideWalk);
-        charAnim.SetBool("Running", isRun);
+        CharAnimator.SetBool("FrontWalk", IsWalk);
+        CharAnimator.SetFloat("SideWalk", SideWalk);
+        CharAnimator.SetBool("Running", IsRun);
     }
 
     // 임시 방편 -> Player가 3명 이상일 경우 판가름이 불가능 함
@@ -104,38 +105,38 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
-            stream.SendNext(isWalk);
-            stream.SendNext(isRun);
-            stream.SendNext(sideWalk);
+            stream.SendNext(IsWalk);
+            stream.SendNext(IsRun);
+            stream.SendNext(SideWalk);
         }
         else
         {
-            currPos = (Vector3)stream.ReceiveNext();
-            currRot = (Quaternion)stream.ReceiveNext();
-            isWalk = (bool)stream.ReceiveNext();
-            isRun = (bool)stream.ReceiveNext();
-            sideWalk = (float)stream.ReceiveNext();
+            CurrPos = (Vector3)stream.ReceiveNext();
+            CurrRot = (Quaternion)stream.ReceiveNext();
+            IsWalk = (bool)stream.ReceiveNext();
+            IsRun = (bool)stream.ReceiveNext();
+            SideWalk = (float)stream.ReceiveNext();
         }
     }
 
     // 캐릭터의 이동 함수
     private void Move()
     {
-        sideWalk = Input.GetAxisRaw("Horizontal");
+        SideWalk = Input.GetAxisRaw("Horizontal");
         float _moveDirZ = Input.GetAxisRaw("Vertical");
         
         // 수평, 수직에 대한 이동 백터
-        Vector3 _moveHorizontal = transform.right * sideWalk;
+        Vector3 _moveHorizontal = transform.right * SideWalk;
         Vector3 _moveVertical = transform.forward * _moveDirZ;
         // 수평, 수직으로 정의된 Character의 이동 velocity
         // 방향(수평, 수직에 대한 정규화) * 속도 = 캐릭터의 움직임
-        Character.velocity = (_moveHorizontal + _moveVertical).normalized * applySpeed;
+        Character.velocity = (_moveHorizontal + _moveVertical).normalized * ApplySpeed;
 
         // 캐릭터가 움직였는지 확인
-        if (_moveDirZ != 0 || sideWalk != 0)
-            isWalk = true;
+        if (_moveDirZ != 0 || SideWalk != 0)
+            IsWalk = true;
         else
-            isWalk = false;
+            IsWalk = false;
     }
 
     // 달리기 시도 함수
@@ -150,15 +151,15 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     // 달릴 때의 함수
     private void Running()
     {
-        isRun = true;
-        applySpeed = runSpeed;
+        IsRun = true;
+        ApplySpeed = RunSpeed;
     }
 
     // 달리기를 멈췄을 때의 함수
     private void stopRunning()
     {
-        isRun = false;
-        applySpeed = walkSpeed;
+        IsRun = false;
+        ApplySpeed = WallSpeed;
     }
 
     // 캐릭터의 방향 전환 함수
@@ -167,29 +168,29 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         // 마우스 X축(좌, 우)에 대한 이동 값 반환
         float _yRotation = Input.GetAxisRaw("Mouse X");
         // 마우스 이동 값 * 마우스의 민감도 -> Character의 회전값 정의
-        currentRotationY += _yRotation * lookSensitivity;
+        CurrentRotationY += _yRotation * LookSensitivity;
         // Character의 지역 Y 축에 대한 회전 값 정의 -> 캐릭터 방향 회전
-        gameObject.transform.localEulerAngles = new Vector3(0, currentRotationY, 0);
+        gameObject.transform.localEulerAngles = new Vector3(0, CurrentRotationY, 0);
         PlayerCamera.transform.parent = gameObject.transform;
     }
 
     // 카메라의 오브젝트 통과를 억제하는 함수
     private void setCameraPosition()
     {
-        targetPos = transform.up * originCameraPos.localPosition.y +
-                   transform.forward * originCameraPos.localPosition.z;
-        Physics.Raycast(rayPosition.position, targetPos, out hitInfo, rayDist);
+        TargetPos = transform.up * OiriginCameraPos.localPosition.y +
+                   transform.forward * OiriginCameraPos.localPosition.z;
+        Physics.Raycast(RayPosition.position, TargetPos, out HitInfo, RayDist);
         // 카메라 Ray에 부딛히는 물체가 있을 경우
-        if (hitInfo.point != Vector3.zero)
+        if (HitInfo.point != Vector3.zero)
         {
-            applyCameraPos = hitInfo.point;
+            ApplyCameraPos = HitInfo.point;
             StopAllCoroutines();
             StartCoroutine(moveGlobalCamera());
         }
         // 카메라 Ray에 부딛히는 물체가 없을 경우
         else
         {
-            applyCameraPos = originCameraPos.position;
+            ApplyCameraPos = OiriginCameraPos.position;
             StopAllCoroutines();
             StartCoroutine(moveLocalCamera());
         }
@@ -197,38 +198,38 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
 
     private IEnumerator moveGlobalCamera()
     {
-        if(PlayerCamera.transform.position != applyCameraPos)
+        if(PlayerCamera.transform.position != ApplyCameraPos)
         {
             int cnt = 0;
             while (true)
             {
                 PlayerCamera.transform.position =
-                    Vector3.Lerp(PlayerCamera.transform.position, applyCameraPos, 0.1f);
+                    Vector3.Lerp(PlayerCamera.transform.position, ApplyCameraPos, 0.1f);
                 if (cnt > 15) break;
                 else ++cnt;
 
                 yield return null;
             }
-            PlayerCamera.transform.position = applyCameraPos;
+            PlayerCamera.transform.position = ApplyCameraPos;
         }
     }
 
     private IEnumerator moveLocalCamera()
     {
-        if (PlayerCamera.transform.localPosition != originCameraPos.localPosition)
+        if (PlayerCamera.transform.localPosition != OiriginCameraPos.localPosition)
         {
             int cnt = 0;
             while (true)
             {
                 PlayerCamera.transform.position =
-                    Vector3.Lerp(PlayerCamera.transform.position, applyCameraPos, 0.1f);
+                    Vector3.Lerp(PlayerCamera.transform.position, ApplyCameraPos, 0.1f);
                 if (cnt > 15) break;
                 else ++cnt;
 
                 yield return null;
             }
 
-            PlayerCamera.transform.localPosition = originCameraPos.localPosition;
+            PlayerCamera.transform.localPosition = OiriginCameraPos.localPosition;
         }
     }
 }
