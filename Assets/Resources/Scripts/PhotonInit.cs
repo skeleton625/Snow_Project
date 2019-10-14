@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 
@@ -15,10 +16,9 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     [SerializeField]
     private Transform[] Beacon;
     [SerializeField]
-    private string gameVersion;
+    private string GameVersion;
 
     private PhotonView pv;
-    private string createdPlayerName;
 
     void Awake()
     {
@@ -36,7 +36,7 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     public void OnLogin()
     {
         PhotonNetwork.NickName = "0";
-        PhotonNetwork.GameVersion = this.gameVersion;
+        PhotonNetwork.GameVersion = this.GameVersion;
         PhotonNetwork.ConnectUsingSettings();
     }
 
@@ -71,12 +71,6 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         StartCoroutine(CreatePlayer());
     }
 
-    // Player가 들어왔을 때 알려주는 함수
-    public override void OnPlayerEnteredRoom(Player newPlayer)
-    {
-        Debug.Log("here");
-    }
-
     // Player가 나갔을 때 알려주는 함수
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
@@ -101,14 +95,14 @@ public class PhotonInit : MonoBehaviourPunCallbacks
     IEnumerator CreatePlayer()
     {
         // 캐릭터 모델을 복사해 Player 캐릭터 생성
-        GameObject Player = PhotonNetwork.Instantiate(PlayerModel.name, 
+        GameObject _player = PhotonNetwork.Instantiate(PlayerModel.name, 
                                                         Beacon[int.Parse(PhotonNetwork.NickName)].position, 
                                                         Quaternion.identity, 0);
-        // Player 캐릭터의 세부 사항 설정
-        Player.name = PhotonNetwork.NickName;
-        Player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
-        Player.GetComponent<PlayerAttribute>().setAttackDamage(5);
-        Player.GetComponent<PlayerAttribute>().setPlayerNumb(int.Parse(PhotonNetwork.NickName));
+     // Player 캐릭터의 세부 사항 설정
+        _player.name = PhotonNetwork.NickName;
+        _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
+        _player.GetComponent<PlayerAttribute>().setAttackDamage(5);
+        _player.GetComponent<PlayerAttribute>().setPlayerNumb(int.Parse(PhotonNetwork.NickName));
         yield return null;
     }
 }
