@@ -42,6 +42,8 @@ public class BallController : MonoBehaviourPunCallbacks
     {
         // 공과 충돌한 Player의 번호를 파악
         string objectName = collision.gameObject.name;
+        if (objectName == ThrowPlayer+"")
+            return;
         // 충돌한 Player의 PhotonView 가져옴
         PhotonView pv = GameObject.Find(objectName+"").GetComponent<PhotonView>();
         if(objectName != "SnowBall(Clone)" && objectName != "Wall")
