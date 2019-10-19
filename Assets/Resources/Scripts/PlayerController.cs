@@ -38,6 +38,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private bool IsRun;
     // 좌우 이동에 대한 변수
     private float SideWalk;
+    private float FrontWalk;
     
     // 오브젝트 통과를 억제할 객체들
     private RaycastHit HitInfo;
@@ -123,17 +124,17 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private void Move()
     {
         SideWalk = Input.GetAxisRaw("Horizontal");
-        float _moveDirZ = Input.GetAxisRaw("Vertical");
+        FrontWalk = Input.GetAxisRaw("Vertical");
         
         // 수평, 수직에 대한 이동 백터
         Vector3 _moveHorizontal = transform.right * SideWalk;
-        Vector3 _moveVertical = transform.forward * _moveDirZ;
+        Vector3 _moveVertical = transform.forward * FrontWalk;
         // 수평, 수직으로 정의된 Character의 이동 velocity
         // 방향(수평, 수직에 대한 정규화) * 속도 = 캐릭터의 움직임
         Character.velocity = (_moveHorizontal + _moveVertical).normalized * ApplySpeed;
 
         // 캐릭터가 움직였는지 확인
-        if (_moveDirZ != 0 || SideWalk != 0)
+        if (FrontWalk != 0 || SideWalk != 0)
             IsWalk = true;
         else
             IsWalk = false;
@@ -142,7 +143,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     // 달리기 시도 함수
     private void TryRun()
     {
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.LeftShift) && FrontWalk >= 0)
             Running();
         else
             stopRunning();
