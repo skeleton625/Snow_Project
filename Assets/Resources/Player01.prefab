@@ -3215,7 +3215,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d0f87755008d8742a7fd309e11e1949, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  AttackCycle: 0.3
+  AttackCycle: 0.5
   BallGeneratePos: {fileID: 32878747360711971}
 --- !u!114 &32878747490649050
 MonoBehaviour:
@@ -3232,8 +3232,8 @@ MonoBehaviour:
   PlayerCamera: {fileID: 0}
   OiriginCameraPos: {fileID: 32878747229826395}
   RayPosition: {fileID: 32878747524040393}
-  WallSpeed: 5
-  RunSpeed: 10
+  WallSpeed: 3
+  RunSpeed: 8
   LookSensitivity: 8
 --- !u!114 &32878747490649053
 MonoBehaviour:
