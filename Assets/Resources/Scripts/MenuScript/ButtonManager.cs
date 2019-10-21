@@ -19,6 +19,11 @@ public class ButtonManager : MonoBehaviour
         PlayerMenu.setMenuActive(1);
     }
 
+    public void RemovePopupButtonClick()
+    {
+        Destroy(this.gameObject.transform.parent.gameObject);
+    }
+
     public void RoomButtonClick()
     {
         PlayerMenu.setMenuActive(2);
