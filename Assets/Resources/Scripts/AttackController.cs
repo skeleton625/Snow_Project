@@ -59,7 +59,7 @@ public class AttackController : MonoBehaviourPunCallbacks
     private void Attack(Vector3 ballPosition, Quaternion ballRotation)
     {
         GameObject _clone = PhotonNetwork.Instantiate(AttackBall.name, ballPosition, ballRotation, 0);
-        _clone.GetComponent<MeshRenderer>().material = StaticObjects.getMaterial(PlayerAtt.getPlayerNumb());
+        _clone.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.green);
         _clone.GetComponent<BallController>().ballDamage = PlayerAtt.getAttackDamage();
         _clone.GetComponent<BallController>().ThrowPlayer = PlayerAtt.getPlayerNumb();
     }

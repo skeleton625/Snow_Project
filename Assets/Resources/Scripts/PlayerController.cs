@@ -62,7 +62,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         ApplySpeed = WallSpeed;
         RayDist = Mathf.Sqrt(OiriginCameraPos.localPosition.y * OiriginCameraPos.localPosition.y +
                                 OiriginCameraPos.localPosition.z * OiriginCameraPos.localPosition.z);
-        SettingOtherPlayers();
     }
 
     // 물리적인 이동을 담당하는 Update 함수
@@ -84,20 +83,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         CharAnimator.SetBool("FrontWalk", IsWalk);
         CharAnimator.SetFloat("SideWalk", SideWalk);
         CharAnimator.SetBool("Running", IsRun);
-    }
-
-    // 임시 방편 -> Player가 3명 이상일 경우 판가름이 불가능 함
-    private void SettingOtherPlayers()
-    {
-        int _myPlayerNumber = int.Parse(PhotonNetwork.NickName);
-        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
-        {
-            GameObject _playerModel = GameObject.Find("Player01(Clone)");
-            if (_myPlayerNumber != i && _playerModel != null)
-            {
-                _playerModel.name = i + "";
-            }
-        }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
