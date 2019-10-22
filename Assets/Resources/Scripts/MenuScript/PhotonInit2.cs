@@ -17,7 +17,7 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
     public bool IsRoomUpdate;
 
     private List<string> Rooms;
-    private bool[] IsReady;
+    
 
     void Awake()
     {
@@ -58,7 +58,6 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
 
     public override void OnJoinedRoom()
     {
-        IsReady = new bool[PlayerNumbers];
         IsRoomConnected = true;
         Debug.Log(PhotonNetwork.NickName + " is joined " + PhotonNetwork.CurrentRoom);
     }
@@ -132,23 +131,4 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
     {
         PhotonNetwork.NickName += '_' + _num;
     }
-
-    [PunRPC]
-    public void PressReady(int _num, bool _isReady)
-    {
-        for (int i = 0; i < 4; i++)
-            Debug.Log(IsReady[i]);
-        IsReady[_num] = _isReady;
-    }
-
-    public bool PressGameStart()
-    {
-        for(int i = 1; i < PhotonNetwork.PlayerList.Length; i++)
-        {
-            if (!IsReady[i])
-                return false;
-        }
-        return true;
-    }
-
 }

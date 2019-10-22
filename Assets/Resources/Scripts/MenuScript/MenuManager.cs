@@ -11,14 +11,16 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     private GameObject[] UI;
 
-    private bool IsReady;
+    private bool PlayerReady;
+    private bool[] IsReady;
     private int PreMenuNum;
     private int PlayerNumber;
     private PhotonInit2 PhotonNet;
 
     void Start()
     {
-        IsReady = false;
+        PlayerReady = false;
+        IsReady = new bool[4];
         PhotonNet = GetComponent<PhotonInit2>();
     }
 
@@ -76,24 +78,44 @@ public class MenuManager : MonoBehaviour
         if (PhotonNet.IsRoomMaster())
             GetComponent<PhotonView>().RPC("AllPlayerLeaveRoom", RpcTarget.All);
         else
+        {
+            PlayerReady = false;
             PhotonNet.LeaveRoom();
+        }
     }
 
     public void PlayerStartGame()
     {
-        Debug.Log(PlayerNumber);
         if (PlayerNumber == 0)
         {
-            if (!PhotonNet.PressGameStart())
-                GeneratePopup(4, "Someone don't press Ready Button");
+            if (!PressGameStart())
+                GeneratePopup(3, "Someone don't press Ready Button");
             else
                 GetComponent<PhotonView>().RPC("PlayerMoveScene", RpcTarget.All);
         }
         else
         {
-            IsReady = !IsReady;
-            GetComponent<PhotonView>().RPC("PressReady", RpcTarget.All, PlayerNumber, IsReady);
+            PlayerReady = !PlayerReady;
+            GetComponent<PhotonView>().RPC("PressReady", RpcTarget.All, PlayerNumber, PlayerReady);
         }
+    }
+
+    [PunRPC]
+    private void PressReady(int _num, bool _isReady)
+    {
+        GameObject UserName = UI[3].transform.Find("Player " + _num + "/Username").gameObject;
+        UserName.GetComponent<Image>().color = Color.green;
+        IsReady[_num] = _isReady;
+    }
+
+    private bool PressGameStart()
+    {
+        for (int i = 1; i < PhotonNetwork.PlayerList.Length; i++)
+        {
+            if (!IsReady[i])
+                return false;
+        }
+        return true;
     }
 
     [PunRPC]
@@ -105,6 +127,7 @@ public class MenuManager : MonoBehaviour
     [PunRPC]
     private void AllPlayerLeaveRoom()
     {
+        PlayerReady = false;
         PhotonNet.LeaveRoom();
         setMenuActive(1, null);
     }
@@ -146,8 +169,12 @@ public class MenuManager : MonoBehaviour
         {
             GameObject PlayerPos = UI[3].transform.Find("Player " + i + "/Username/Text").gameObject;
             PlayerPos.GetComponent<Text>().text = _playerList[i].NickName.Split('_')[0];
-            if (PhotonNetwork.MasterClient.UserId == _playerList[i].UserId)
+            if(PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
+            {
                 PlayerNumber = i;
+                PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + '_' + i;
+            }
+                
         }
 
         PhotonNet.IsRoomUpdate = false;
@@ -179,7 +206,7 @@ public class MenuManager : MonoBehaviour
                 while (!PhotonNet.IsRoomConnected)
                 {
                     _timer += Time.deltaTime;
-                    if (_timer > 5)
+                    if (_timer > 8)
                     {
                         PreMenuNum = 1;
                         PhotonNet.DeleteRoom(option);
@@ -189,7 +216,7 @@ public class MenuManager : MonoBehaviour
                     yield return null;
                 }
 
-                if (_timer < 5)
+                if (_timer < 8)
                     PhotonNet.IsRoomUpdate = true;
 
                 break;
