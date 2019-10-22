@@ -15,12 +15,15 @@ public class MenuManager : MonoBehaviour
     private bool[] IsReady;
     private int PreMenuNum;
     private int PlayerNumber;
+    private PhotonView PV;
     private PhotonInit2 PhotonNet;
 
     void Start()
     {
         PlayerReady = false;
+        PlayerNumber = 0;
         IsReady = new bool[4];
+        PV = GetComponent<PhotonView>();
         PhotonNet = GetComponent<PhotonInit2>();
     }
 
@@ -76,10 +79,11 @@ public class MenuManager : MonoBehaviour
     public void PlayerLeaveRoom()
     {
         if (PhotonNet.IsRoomMaster())
-            GetComponent<PhotonView>().RPC("AllPlayerLeaveRoom", RpcTarget.All);
+            PV.RPC("AllPlayerLeaveRoom", RpcTarget.All);
         else
         {
             PlayerReady = false;
+            PlayerNumber = 0;
             PhotonNet.LeaveRoom();
         }
     }
@@ -91,21 +95,13 @@ public class MenuManager : MonoBehaviour
             if (!PressGameStart())
                 GeneratePopup(3, "Someone don't press Ready Button");
             else
-                GetComponent<PhotonView>().RPC("PlayerMoveScene", RpcTarget.All);
+                PV.RPC("PlayerMoveScene", RpcTarget.All);
         }
         else
         {
             PlayerReady = !PlayerReady;
-            GetComponent<PhotonView>().RPC("PressReady", RpcTarget.All, PlayerNumber, PlayerReady);
+            PV.RPC("PressReady", RpcTarget.All, PlayerNumber, PlayerReady);
         }
-    }
-
-    [PunRPC]
-    private void PressReady(int _num, bool _isReady)
-    {
-        GameObject UserName = UI[3].transform.Find("Player " + _num + "/Username").gameObject;
-        UserName.GetComponent<Image>().color = Color.green;
-        IsReady[_num] = _isReady;
     }
 
     private bool PressGameStart()
@@ -116,20 +112,6 @@ public class MenuManager : MonoBehaviour
                 return false;
         }
         return true;
-    }
-
-    [PunRPC]
-    private void PlayerMoveScene()
-    {
-        SceneManager.LoadScene("SampleScene");
-    }
-
-    [PunRPC]
-    private void AllPlayerLeaveRoom()
-    {
-        PlayerReady = false;
-        PhotonNet.LeaveRoom();
-        setMenuActive(1, null);
     }
 
     private void CreateRoomButtons()
@@ -167,14 +149,14 @@ public class MenuManager : MonoBehaviour
 
         for (int i = 0; i < _playerList.Length; i++)
         {
-            GameObject PlayerPos = UI[3].transform.Find("Player " + i + "/Username/Text").gameObject;
-            PlayerPos.GetComponent<Text>().text = _playerList[i].NickName.Split('_')[0];
-            if(PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
+            if (PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
             {
+                PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, PlayerReady);
                 PlayerNumber = i;
                 PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + '_' + i;
             }
-                
+            GameObject PlayerPos = UI[3].transform.Find("Player " + i + "/Username/Text").gameObject;
+            PlayerPos.GetComponent<Text>().text = _playerList[i].NickName.Split('_')[0];
         }
 
         PhotonNet.IsRoomUpdate = false;
@@ -225,5 +207,45 @@ public class MenuManager : MonoBehaviour
         UI[4].SetActive(false);
         UI[PreMenuNum].SetActive(true);
         yield return null;
+    }
+
+    [PunRPC]
+    private void PressReady(int _num, bool _isReady)
+    {
+        GameObject UserName = UI[3].transform.Find("Player " + _num + "/Username").gameObject;
+        IsReady[_num] = _isReady;
+        if (IsReady[_num])
+            UserName.GetComponent<Image>().color = Color.green;
+        else
+            UserName.GetComponent<Image>().color = Color.white;
+    }
+
+    [PunRPC]
+    private void PressReady(int _prenum, int _num, bool _isReady)
+    {
+        GameObject PreUserName = UI[3].transform.Find("Player " + _prenum + "/Username").gameObject;
+        GameObject UserName = UI[3].transform.Find("Player " + _num + "/Username").gameObject;
+        IsReady[_prenum] = false;
+        PreUserName.GetComponent<Image>().color = Color.white;
+        IsReady[_num] = _isReady;
+        Debug.Log(_prenum + " " + _num + " " + _isReady);
+        if (IsReady[_num])
+            UserName.GetComponent<Image>().color = Color.green;
+        else
+            UserName.GetComponent<Image>().color = Color.white;
+    }
+
+    [PunRPC]
+    private void PlayerMoveScene()
+    {
+        SceneManager.LoadScene("SampleScene");
+    }
+
+    [PunRPC]
+    private void AllPlayerLeaveRoom()
+    {
+        PlayerReady = false;
+        PhotonNet.LeaveRoom();
+        setMenuActive(1, null);
     }
 }
