@@ -1,20 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Photon.Pun;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using Photon.Pun;
+using Photon.Realtime;
 
 public class MenuManager : MonoBehaviour
 {
     [SerializeField]
     private GameObject[] UI;
 
-    private PhotonInit2 PhotonNet;
-    private string currentRoomName;
+    private bool IsReady;
     private int PreMenuNum;
+    private int PlayerNumber;
+    private PhotonInit2 PhotonNet;
 
     void Start()
     {
+        IsReady = false;
         PhotonNet = GetComponent<PhotonInit2>();
     }
 
@@ -26,34 +30,25 @@ public class MenuManager : MonoBehaviour
             SettingRoomPlayers();
     }
 
-    public void setPlayerName(string _playerName)
+    public void setPlayerName()
     {
+        string _playerName = GameObject.Find("UserName/InputField").GetComponent<InputField>().text;
         PhotonNet.OnLogin(_playerName);
     }
 
-    public void setMenuActive(int _num)
+    public void setMenuActive(int _num, string option)
     {
         UI[PreMenuNum].SetActive(false);
         PreMenuNum = _num;
 
         switch (_num)
         {
-            case 1:
-                if (!PhotonNet.IsLobbyConnected)
+            case 1: case 3:
+                if (!PhotonNet.IsRoomConnected || !PhotonNet.IsLobbyConnected)
                 {
-                    StartCoroutine(WaitingCoroutine());
+                    StartCoroutine(WaitingCoroutine(option));
                     break;
                 }
-                break;
-            case 3:
-                if (!PhotonNet.IsRoomConnected)
-                {
-                    StartCoroutine(WaitingCoroutine());
-                    break;
-                }
-
-                UI[_num].transform.Find("Header/RoomName")
-                        .GetComponent<Text>().text = currentRoomName;
                 break;
             default:
                 UI[_num].SetActive(true);
@@ -61,17 +56,18 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void CreateRoomByMaster(string _roomName)
+    public void CreateRoomByMaster()
     {
+        string _roomName = GameObject.Find("RoomName/InputField").GetComponent<InputField>().text;
         if (!PhotonNet.CreateRoom(_roomName))
         {
-            setMenuActive(1);
+            GeneratePopup(1, "This Room name is already Exist");
+            setMenuActive(1, _roomName);
         }
     }
 
     public void PlayerJoinRoom(string _roomName)
     {
-        currentRoomName = _roomName;
         PhotonNet.JoinRoom(_roomName);
     }
 
@@ -83,47 +79,34 @@ public class MenuManager : MonoBehaviour
             PhotonNet.LeaveRoom();
     }
 
-    [PunRPC]
-    public void AllPlayerLeaveRoom()
+    public void PlayerStartGame()
     {
-        PhotonNet.LeaveRoom();
-        setMenuActive(1);
+        Debug.Log(PlayerNumber);
+        if (PlayerNumber == 0)
+        {
+            if (!PhotonNet.PressGameStart())
+                GeneratePopup(4, "Someone don't press Ready Button");
+            else
+                GetComponent<PhotonView>().RPC("PlayerMoveScene", RpcTarget.All);
+        }
+        else
+        {
+            IsReady = !IsReady;
+            GetComponent<PhotonView>().RPC("PressReady", RpcTarget.All, PlayerNumber, IsReady);
+        }
     }
 
-    private IEnumerator WaitingCoroutine()
+    [PunRPC]
+    private void PlayerMoveScene()
     {
-        UI[4].SetActive(true);
-        Debug.Log("Waiting...");
+        SceneManager.LoadScene("SampleScene");
+    }
 
-        switch (PreMenuNum)
-        {
-            case 1:
-                while (!PhotonNet.IsLobbyConnected)
-                    yield return null;
-
-                CreateRoomButtons();
-                break;
-            case 3:
-                float _timer = 0;
-
-                while (!PhotonNet.IsRoomConnected)
-                {
-                    _timer += Time.deltaTime;
-                    if (_timer > 8)
-                    {
-                        PreMenuNum = 1;
-                        PhotonNet.DeleteRoom(currentRoomName);
-                        GeneratePopup(1, "This room does not Exist");
-                        break;
-                    }
-                    yield return null;
-                }
-                break;
-        }
-
-        UI[4].SetActive(false);
-        UI[PreMenuNum].SetActive(true);
-        yield return null;
+    [PunRPC]
+    private void AllPlayerLeaveRoom()
+    {
+        PhotonNet.LeaveRoom();
+        setMenuActive(1, null);
     }
 
     private void CreateRoomButtons()
@@ -149,7 +132,9 @@ public class MenuManager : MonoBehaviour
 
     private void SettingRoomPlayers()
     {
-        List<string> _playerList = PhotonNet.GetPlayerList();
+        Player[] _playerList = PhotonNet.GetPlayerList();
+        UI[3].transform.Find("Header/RoomName").GetComponent<Text>().text
+            = PhotonNet.GetCurrentRoomName();
 
         for (int i = 0; i < 4; i++)
         {
@@ -157,10 +142,12 @@ public class MenuManager : MonoBehaviour
             PlayerPos.GetComponent<Text>().text = "None";
         }
 
-        for (int i = 0; i < _playerList.Count; i++)
+        for (int i = 0; i < _playerList.Length; i++)
         {
             GameObject PlayerPos = UI[3].transform.Find("Player " + i + "/Username/Text").gameObject;
-            PlayerPos.GetComponent<Text>().text = _playerList[i];
+            PlayerPos.GetComponent<Text>().text = _playerList[i].NickName.Split('_')[0];
+            if (PhotonNetwork.MasterClient.UserId == _playerList[i].UserId)
+                PlayerNumber = i;
         }
 
         PhotonNet.IsRoomUpdate = false;
@@ -171,5 +158,45 @@ public class MenuManager : MonoBehaviour
         GameObject _popup = Instantiate(Resources.Load("Popup") as GameObject, UI[_num].transform);
 
         _popup.transform.Find("Content/Text").GetComponent<Text>().text = _inform;
+    }
+
+    private IEnumerator WaitingCoroutine(string option)
+    {
+        UI[4].SetActive(true);
+        Debug.Log("Waiting...");
+
+        switch (PreMenuNum)
+        {
+            case 1:
+                while (!PhotonNet.IsLobbyConnected)
+                    yield return null;
+
+                CreateRoomButtons();
+                break;
+            case 3:
+                float _timer = 0;
+
+                while (!PhotonNet.IsRoomConnected)
+                {
+                    _timer += Time.deltaTime;
+                    if (_timer > 5)
+                    {
+                        PreMenuNum = 1;
+                        PhotonNet.DeleteRoom(option);
+                        GeneratePopup(1, "This room does not Exist");
+                        break;
+                    }
+                    yield return null;
+                }
+
+                if (_timer < 5)
+                    PhotonNet.IsRoomUpdate = true;
+
+                break;
+        }
+
+        UI[4].SetActive(false);
+        UI[PreMenuNum].SetActive(true);
+        yield return null;
     }
 }
