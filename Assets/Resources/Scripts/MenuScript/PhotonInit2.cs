@@ -17,29 +17,27 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
     public bool IsRoomUpdate;
 
     private List<string> Rooms;
+    private bool[] IsReady;
 
     void Awake()
     {
         Rooms = new List<string>();
         PhotonNetwork.AutomaticallySyncScene = true;
     }
-
     public void OnLogin(string _nickName)
     {
-        PhotonNetwork.NickName = _nickName;
+        PhotonNetwork.NickName = _nickName + "_0";
         PhotonNetwork.GameVersion = this.GameVersion;
         PhotonNetwork.ConnectUsingSettings();
     }
 
     public override void OnConnectedToMaster()
     {
-        Debug.Log("Connected to Master!!");
         PhotonNetwork.JoinLobby();
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
     {
-        
         foreach (RoomInfo room in roomList)
         {
             if (room.RemovedFromList)
@@ -60,6 +58,7 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
 
     public override void OnJoinedRoom()
     {
+        IsReady = new bool[PlayerNumbers];
         IsRoomConnected = true;
         Debug.Log(PhotonNetwork.NickName + " is joined " + PhotonNetwork.CurrentRoom);
     }
@@ -114,12 +113,9 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
         return RoomNames;
     }
 
-    public List<string> GetPlayerList()
+    public Player[] GetPlayerList()
     {
-        List<string> _playerList = new List<string>();
-        foreach (Player _player in PhotonNetwork.PlayerList)
-            _playerList.Add(_player.NickName);
-        return _playerList;
+        return PhotonNetwork.PlayerList;
     }
 
     public string GetCurrentRoomName()
@@ -131,4 +127,28 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
     {
         return PhotonNetwork.IsMasterClient;
     }
+
+    public void setNickNameNumbering(int _num)
+    {
+        PhotonNetwork.NickName += '_' + _num;
+    }
+
+    [PunRPC]
+    public void PressReady(int _num, bool _isReady)
+    {
+        for (int i = 0; i < 4; i++)
+            Debug.Log(IsReady[i]);
+        IsReady[_num] = _isReady;
+    }
+
+    public bool PressGameStart()
+    {
+        for(int i = 1; i < PhotonNetwork.PlayerList.Length; i++)
+        {
+            if (!IsReady[i])
+                return false;
+        }
+        return true;
+    }
+
 }
