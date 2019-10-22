@@ -30,8 +30,6 @@ public class PhotonInit : MonoBehaviourPunCallbacks
         // SettingPlayerModelName 함수를 위한 PhotonView 컴포넌트
         pv = GetComponent<PhotonView>();
         BeaconPosition = new bool[Beacon.Length];
-        Debug.Log(PhotonNetwork.NickName);
-        Debug.Log(PhotonNetwork.CurrentRoom);
         MasterPlayerPos = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
         StartCoroutine(CreatePlayer());
     }
