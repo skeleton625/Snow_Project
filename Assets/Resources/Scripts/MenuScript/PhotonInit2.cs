@@ -18,7 +18,6 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
 
     private List<string> Rooms;
     
-
     void Awake()
     {
         Rooms = new List<string>();
@@ -40,7 +39,7 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
     {
         foreach (RoomInfo room in roomList)
         {
-            if (room.RemovedFromList)
+            if (room.RemovedFromList || !room.IsOpen)
                 Rooms.Remove(room.Name);
             else if(!Rooms.Exists(_room=>_room == room.Name))
                 Rooms.Add(room.Name);
@@ -74,9 +73,9 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
         base.OnPlayerLeftRoom(otherPlayer);
     }
 
-    public void JoinRoom(string _roomName)
+    public bool JoinRoom(string _roomName)
     {
-        PhotonNetwork.JoinRoom(_roomName);
+        return PhotonNetwork.JoinRoom(_roomName);
     }
 
     public void LeaveRoom()
@@ -95,10 +94,7 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
     public bool CreateRoom(string _roomName)
     {
         if (Rooms.Exists(_room => _room == _roomName))
-        {
-            Debug.Log("That Room is already EXISTED!!");
             return false;
-        }
             
         PhotonNetwork.CreateRoom(_roomName, new RoomOptions { MaxPlayers = PlayerNumbers });
         return true;

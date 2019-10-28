@@ -31,13 +31,11 @@ public class ButtonManager : MonoBehaviour
     public void CreateRoomButtonClick()
     {
         PlayerMenu.CreateRoomByMaster();
-        PlayerMenu.setMenuActive(3, null);
     }
 
     public void JoinRoomButtonClick()
     {
         PlayerMenu.PlayerJoinRoom(gameObject.name);
-        PlayerMenu.setMenuActive(3, null);
     }
 
     public void GameStartButtonClick()
