@@ -62,6 +62,21 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         ApplySpeed = WallSpeed;
         RayDist = Mathf.Sqrt(OiriginCameraPos.localPosition.y * OiriginCameraPos.localPosition.y +
                                 OiriginCameraPos.localPosition.z * OiriginCameraPos.localPosition.z);
+
+        if (pv.IsMine)
+        {
+            if (GetComponent<PlayerAttribute>().getPlayerNumb() % 2 == 1)
+            {
+                CurrentRotationY = 180;
+                PlayerCamera.transform.Rotate(20, 180, 0);
+            }
+            else
+            {
+                CurrentRotationY = 0;
+                PlayerCamera.transform.Rotate(20, 0, 0);
+            }
+        }
+        
     }
 
     // 물리적인 이동을 담당하는 Update 함수
