@@ -245,7 +245,7 @@ public class MenuManager : MonoBehaviour
     [PunRPC]
     private void PlayerMoveScene()
     {
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("GameScene");
     }
 
     [PunRPC]
