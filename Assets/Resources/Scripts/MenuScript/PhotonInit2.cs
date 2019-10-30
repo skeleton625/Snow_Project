@@ -10,7 +10,6 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
     private string GameVersion;
     [SerializeField]
     private byte PlayerNumbers;
-
     public bool IsLobbyConnected;
     public bool IsLobbyUpdate;
     public bool IsRoomConnected;
@@ -39,6 +38,7 @@ public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
     {
         foreach (RoomInfo room in roomList)
         {
+            Debug.Log(room);
             if (room.RemovedFromList || !room.IsOpen)
                 Rooms.Remove(room.Name);
             else if(!Rooms.Exists(_room=>_room == room.Name))

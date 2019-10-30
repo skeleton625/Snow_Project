@@ -68,12 +68,15 @@ public class MenuManager : MonoBehaviour
         {
             GeneratePopup(1, "This Room name is already Exist");
             setMenuActive(1, _roomName);
+            return;
         }
+        setMenuActive(3, _roomName);
     }
 
     public void PlayerJoinRoom(string _roomName)
     {
         PhotonNet.JoinRoom(_roomName);
+        setMenuActive(3, _roomName);
     }
 
     public void PlayerLeaveRoom()
@@ -95,7 +98,10 @@ public class MenuManager : MonoBehaviour
             if (!PressGameStart())
                 GeneratePopup(3, "Someone don't press Ready Button");
             else
+            {
                 PV.RPC("PlayerMoveScene", RpcTarget.All);
+                PhotonNetwork.CurrentRoom.IsOpen = false;
+            }
         }
         else
         {
@@ -225,10 +231,11 @@ public class MenuManager : MonoBehaviour
     {
         GameObject PreUserName = UI[3].transform.Find("Player " + _prenum + "/Username").gameObject;
         GameObject UserName = UI[3].transform.Find("Player " + _num + "/Username").gameObject;
+
         IsReady[_prenum] = false;
         PreUserName.GetComponent<Image>().color = Color.white;
         IsReady[_num] = _isReady;
-        Debug.Log(_prenum + " " + _num + " " + _isReady);
+
         if (IsReady[_num])
             UserName.GetComponent<Image>().color = Color.green;
         else
