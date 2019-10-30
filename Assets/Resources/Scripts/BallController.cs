@@ -13,10 +13,17 @@ public class BallController : MonoBehaviourPunCallbacks
     private float limitTime;
     private float curTime;
 
+    private GameObject hitEffect;
+
     // 공의 피해량
     public float ballDamage;
     // 공을 던진 Player의 번호
     public int ThrowPlayer;
+
+    void Start()
+    {
+        hitEffect = Resources.Load("hitEffect") as GameObject;    
+    }
 
     // Update is called once per frame
     void Update()
@@ -44,6 +51,13 @@ public class BallController : MonoBehaviourPunCallbacks
         string objectName = collision.gameObject.name;
         if (objectName == ThrowPlayer+"")
             return;
+
+        Vector3 conflictPos = collision.contacts[0].point;
+        Vector3 conflictRot = collision.contacts[0].normal;
+        GameObject clone = Instantiate(hitEffect, conflictPos, Quaternion.LookRotation(conflictRot));
+        /* 생성된 피격 효과 오브젝트가 2초 뒤에 삭제되도록 함 */
+        Destroy(clone, 1f);
+
         // 충돌한 Player의 PhotonView 가져옴
         PhotonView pv = GameObject.Find(objectName+"").GetComponent<PhotonView>();
         if(objectName != "SnowBall(Clone)" && objectName != "Wall")
