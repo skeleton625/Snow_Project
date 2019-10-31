@@ -124,6 +124,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballSpeed: 30
+  ballForce: 300
   limitTime: 3
   ballDamage: 0
   ThrowPlayer: 0
