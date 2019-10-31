@@ -8,11 +8,13 @@ public class BallController : MonoBehaviourPunCallbacks
     // 날아가는 공의 속도
     [SerializeField]
     private float ballSpeed;
+    [SerializeField]
+    private float ballForce;
     // 공이 생성되어 날아가는 동안의 시간
     [SerializeField]
     private float limitTime;
     private float curTime;
-
+    // 충돌 이펙트 오브젝트
     private GameObject hitEffect;
 
     // 공의 피해량
@@ -57,11 +59,20 @@ public class BallController : MonoBehaviourPunCallbacks
         GameObject clone = Instantiate(hitEffect, conflictPos, Quaternion.LookRotation(conflictRot));
         /* 생성된 피격 효과 오브젝트가 2초 뒤에 삭제되도록 함 */
         Destroy(clone, 1f);
-
-        // 충돌한 Player의 PhotonView 가져옴
-        PhotonView pv = GameObject.Find(objectName+"").GetComponent<PhotonView>();
-        if(objectName != "SnowBall(Clone)" && objectName != "Wall")
+        
+        // 충돌한 물체가 Player일 경우
+        if (objectName != "SnowBall(Clone)" && objectName != "Wall")
+        {
+            // 충돌한 Player의 피해를 다른 플레이어들에게도 갱신해 줌
+            PhotonView pv = GameObject.Find(objectName + "").GetComponent<PhotonView>();
             pv.RPC("AttackingPlayer", RpcTarget.All, int.Parse(objectName), ballDamage);
+
+            // 충돌한 Player의 Rigidbody를 통해 넉백을 진행
+            Vector3 _knockBack = collision.contacts[0].point.normalized + new Vector3(0, 1f, 0);
+            collision.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            collision.gameObject.GetComponent<Rigidbody>().AddForce(_knockBack * ballForce);
+        }
+            
         // 충돌된 경우 공을 삭제
         Destroy(gameObject);
     }
@@ -70,7 +81,6 @@ public class BallController : MonoBehaviourPunCallbacks
     public void AttackingPlayer(int PlayerNumber, float PlayerDamage)
     {
         GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
-        Debug.Log(PlayerNumber + " " + PlayerDamage);
         AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(PlayerDamage);
     }
 }
