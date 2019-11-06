@@ -16,7 +16,7 @@ public class MenuManager : MonoBehaviour
     private int PreMenuNum;
     private int PlayerNumber;
     private PhotonView PV;
-    private PhotonInit2 PhotonNet;
+    private PhotonInMenu PhotonNet;
 
     void Start()
     {
@@ -24,7 +24,7 @@ public class MenuManager : MonoBehaviour
         PlayerNumber = 0;
         IsReady = new bool[4];
         PV = GetComponent<PhotonView>();
-        PhotonNet = GetComponent<PhotonInit2>();
+        PhotonNet = GetComponent<PhotonInMenu>();
     }
 
     void Update()
@@ -124,7 +124,7 @@ public class MenuManager : MonoBehaviour
     {
         Vector3 ButtonInit = new Vector3(0, -50, 0);
         List<string> RoomNames = PhotonNet.GetRoomNames();
-        GameObject ButtonModel = Resources.Load("RoomButton") as GameObject;
+        GameObject ButtonModel = Resources.Load("Prefabs/UI/RoomButton") as GameObject;
         GameObject Content = UI[1].transform.Find("SelectRoomBar/Viewport/Content").gameObject;
 
         for (int i = 0; i < Content.transform.childCount; i++)
@@ -170,7 +170,7 @@ public class MenuManager : MonoBehaviour
 
     private void GeneratePopup(int _num, string _inform)
     {
-        GameObject _popup = Instantiate(Resources.Load("Popup") as GameObject, UI[_num].transform);
+        GameObject _popup = Instantiate(Resources.Load("Prefabs/UI/Popup") as GameObject, UI[_num].transform);
 
         _popup.transform.Find("Content/Text").GetComponent<Text>().text = _inform;
     }
