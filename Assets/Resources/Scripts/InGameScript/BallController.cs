@@ -24,7 +24,7 @@ public class BallController : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        hitEffect = Resources.Load("hitEffect") as GameObject;    
+        hitEffect = Resources.Load("Prefabs/Particle/hitEffect") as GameObject;    
     }
 
     // Update is called once per frame
@@ -49,9 +49,10 @@ public class BallController : MonoBehaviourPunCallbacks
 
     private void OnCollisionEnter(Collision collision)
     {
+        int _parsedName;
         // 공과 충돌한 Player의 번호를 파악
-        string objectName = collision.gameObject.name;
-        if (objectName == ThrowPlayer+"")
+        string _objectName = collision.gameObject.name;
+        if (_objectName == ThrowPlayer+"")
             return;
 
         Vector3 conflictPos = collision.contacts[0].point;
@@ -61,11 +62,11 @@ public class BallController : MonoBehaviourPunCallbacks
         Destroy(clone, 1f);
         
         // 충돌한 물체가 Player일 경우
-        if (objectName != "SnowBall(Clone)" && objectName != "Wall")
+        if (int.TryParse(_objectName, out _parsedName))
         {
             // 충돌한 Player의 피해를 다른 플레이어들에게도 갱신해 줌
-            PhotonView pv = GameObject.Find(objectName + "").GetComponent<PhotonView>();
-            pv.RPC("AttackingPlayer", RpcTarget.All, int.Parse(objectName), ballDamage);
+            PhotonView pv = GameObject.Find(_objectName).GetComponent<PhotonView>();
+            pv.RPC("AttackingPlayer", RpcTarget.All, _parsedName, ballDamage);
 
             // 충돌한 Player의 Rigidbody를 통해 넉백을 진행
             Vector3 _knockBack = collision.contacts[0].point.normalized + new Vector3(0, 1f, 0);
@@ -82,5 +83,7 @@ public class BallController : MonoBehaviourPunCallbacks
     {
         GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
         AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(PlayerDamage);
+        if(AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar() <= 0)
+            AttackedPlayer.GetComponent<PlayerAttribute>().setPlayerDead(true);
     }
 }
