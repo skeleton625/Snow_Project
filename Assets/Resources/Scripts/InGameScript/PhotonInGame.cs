@@ -10,13 +10,19 @@ public class PhotonInGame : MonoBehaviourPunCallbacks
     [SerializeField]
     private GameObject PlayerModel;
     [SerializeField]
+    private GameObject PlayerDeadModel;
+    [SerializeField]
     private int PlayerNumbers;
     [SerializeField]
     private Camera MainCamera;
     [SerializeField]
     private Transform[] Beacon;
+    [SerializeField]
+    private float ResponTime;
 
+    private float PlayerDeadTime;
     private int MasterPlayerPos;
+    private GameObject MasterPlayer;
     private PhotonView pv;
     private bool[] BeaconPosition;
 
@@ -30,8 +36,44 @@ public class PhotonInGame : MonoBehaviourPunCallbacks
         // SettingPlayerModelName 함수를 위한 PhotonView 컴포넌트
         pv = GetComponent<PhotonView>();
         BeaconPosition = new bool[Beacon.Length];
-        MasterPlayerPos = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
-        StartCoroutine(CreatePlayer());
+        //MasterPlayerPos = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
+        //StartCoroutine(CreatePlayer());
+    }
+
+    void Update()
+    {
+        if(MasterPlayer != null && MasterPlayer.GetComponent<PlayerAttribute>().getPlayerDead())
+        {
+            PlayerDead();
+        }
+    }
+
+    private void PlayerDead()
+    {
+        if (MasterPlayer.GetComponent<PlayerAttribute>().getPlayerDead())
+        {
+
+            GameObject _deadClone = PhotonNetwork.Instantiate(PlayerDeadModel.name,
+                                                        MasterPlayer.transform.position,
+                                                        Quaternion.identity, 0);
+            Destroy(_deadClone);
+            MainCamera.transform.parent = null;
+            _deadClone.name = MasterPlayerPos + "";
+            StartCoroutine(PlayerDeadMotion(_deadClone));
+        }
+    }
+
+    private IEnumerator PlayerDeadMotion(GameObject _deadModel)
+    {
+        float _xRot = 0;
+        while (_xRot > -90)
+        {
+            _xRot = Mathf.Lerp(_xRot, -91, 0.1f);
+            _deadModel.transform.localEulerAngles = new Vector3(_xRot, 0, 0);
+            yield return null;
+        }
+        Destroy(_deadModel, 1f);
+        yield return null;
     }
 
     private IEnumerator CreatePlayer()
@@ -44,6 +86,7 @@ public class PhotonInGame : MonoBehaviourPunCallbacks
         _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
         _player.GetComponent<PlayerAttribute>().setAttackDamage(5);
         _player.GetComponent<PlayerAttribute>().setPlayerNumb(MasterPlayerPos);
+        MasterPlayer = _player;
         StartCoroutine(SettingPlayerNames());
         yield return null;
     }

@@ -27,7 +27,7 @@ public class AttackController : MonoBehaviourPunCallbacks
     {
         pv = GetComponent<PhotonView>();
         PlayerAtt = GetComponent<PlayerAttribute>();
-        AttackBall = Resources.Load("SnowBall") as GameObject;
+        AttackBall = Resources.Load("Prefabs/SnowBall") as GameObject;
     }
 
     // Update is called once per frame
@@ -62,15 +62,5 @@ public class AttackController : MonoBehaviourPunCallbacks
         _clone.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.green);
         _clone.GetComponent<BallController>().ballDamage = PlayerAtt.getAttackDamage();
         _clone.GetComponent<BallController>().ThrowPlayer = PlayerAtt.getPlayerNumb();
-    }
-
-    [PunRPC]
-    public void AttackingPlayer(int PlayerNumber, float PlayerDamage)
-    {
-        GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
-        AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(PlayerDamage);
-        Debug.LogFormat("Player {0} Health : {1}",
-                                                PlayerNumber, 
-                                                AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar());
     }
 }
