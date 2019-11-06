@@ -17,6 +17,7 @@ public class PlayerAttribute : MonoBehaviourPunCallbacks, IPunObservable
 
     // Player의 최대 체력
     private float PlayerHealthBarMax;
+    private bool isPlayerDead;
 
     void Start()
     {
@@ -61,5 +62,15 @@ public class PlayerAttribute : MonoBehaviourPunCallbacks, IPunObservable
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         throw new System.NotImplementedException();
+    }
+
+    public void setPlayerDead(bool _isDead)
+    {
+        isPlayerDead = _isDead;
+    }
+
+    public bool getPlayerDead()
+    {
+        return isPlayerDead;
     }
 }
