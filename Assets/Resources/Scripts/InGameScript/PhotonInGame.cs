@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class PhotonInit : MonoBehaviourPunCallbacks
+public class PhotonInGame : MonoBehaviourPunCallbacks
 {
     [SerializeField]
     private GameObject PlayerModel;

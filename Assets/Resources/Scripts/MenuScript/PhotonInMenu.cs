@@ -4,7 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class PhotonInit2 : MonoBehaviourPunCallbacks, ILobbyCallbacks
+public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
 {
     [SerializeField]
     private string GameVersion;
