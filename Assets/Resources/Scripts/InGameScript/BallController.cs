@@ -77,13 +77,4 @@ public class BallController : MonoBehaviourPunCallbacks
         // 충돌된 경우 공을 삭제
         Destroy(gameObject);
     }
-
-    [PunRPC]
-    public void AttackingPlayer(int PlayerNumber, float PlayerDamage)
-    {
-        GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
-        AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(PlayerDamage);
-        if(AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar() <= 0)
-            AttackedPlayer.GetComponent<PlayerAttribute>().setPlayerDead(true);
-    }
 }
