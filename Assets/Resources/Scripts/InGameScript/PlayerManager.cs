@@ -37,13 +37,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         MasterPlayerPos = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
         StartCoroutine(CreatePlayer());
     }
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.R))
-        {
-            PlayerDead(MasterPlayer.name);
-        }
-    }
 
     public void PlayerDead(string _playerName)
     {
