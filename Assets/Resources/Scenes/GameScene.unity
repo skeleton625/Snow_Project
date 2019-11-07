@@ -1521,10 +1521,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1802875182}
-  - component: {fileID: 1802875181}
-  - component: {fileID: 1802875183}
   - component: {fileID: 1802875184}
   - component: {fileID: 1802875185}
+  - component: {fileID: 1802875181}
   m_Layer: 0
   m_Name: StaticObjects
   m_TagString: Untagged
@@ -1541,9 +1540,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 1802875180}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48e6612ae07451340afbcd7b5069b597, type: 3}
+  m_Script: {fileID: 11500000, guid: 91073f1284f47d2478cb3c31efb7a6d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PlayerModelPos: Prefabs/Player_Model
+  PlayerDeadModelPos: Prefabs/Player_Dead
+  PlayerDeadEffectPos: Prefabs/Particle/deadEffect
+  PlayerNumbers: 0
+  MainCamera: {fileID: 1121504171}
+  Beacon:
+  - {fileID: 485716707}
+  - {fileID: 1077054636}
+  - {fileID: 1253364277}
+  - {fileID: 251837881}
+  ResponTime: 3
 --- !u!4 &1802875182
 Transform:
   m_ObjectHideFlags: 0
@@ -1558,29 +1568,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1802875183
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1802875180}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 354785627697733438f7bd56e9c08659, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PlayerModelPos: Prefabs/Player_Model
-  PlayerDeadModelPos: Prefabs/Player_Dead
-  PlayerDeadEffectPos: Prefabs/Particle/deadEffect
-  PlayerNumbers: 4
-  MainCamera: {fileID: 1121504171}
-  Beacon:
-  - {fileID: 485716707}
-  - {fileID: 1077054636}
-  - {fileID: 1253364277}
-  - {fileID: 251837881}
-  ResponTime: 0
 --- !u!114 &1802875184
 MonoBehaviour:
   m_ObjectHideFlags: 0
