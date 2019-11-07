@@ -20,6 +20,7 @@ public class AttackController : MonoBehaviourPunCallbacks
     private PhotonView pv;
     // 플레이어의 상태 객체
     private PlayerAttribute PlayerAtt;
+    private PlayerManager masterPlayerManager;
 
     private bool IsAttack;
 
@@ -27,6 +28,7 @@ public class AttackController : MonoBehaviourPunCallbacks
     {
         pv = GetComponent<PhotonView>();
         PlayerAtt = GetComponent<PlayerAttribute>();
+        masterPlayerManager = GameObject.Find("StaticObjects").GetComponent<PlayerManager>();
     }
 
     // Update is called once per frame
@@ -69,6 +71,6 @@ public class AttackController : MonoBehaviourPunCallbacks
         GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
         AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(PlayerDamage);
         if (AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar() <= 0)
-            AttackedPlayer.GetComponent<PlayerAttribute>().setPlayerDead(true);
+            masterPlayerManager.PlayerDead(PlayerNumber+"");
     }
 }

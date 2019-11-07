@@ -1,9 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Photon.Pun;
+﻿using UnityEngine;
 
-public class PlayerAttribute : MonoBehaviourPunCallbacks, IPunObservable
+public class PlayerAttribute : MonoBehaviour
 {
     // 현재 Player의 체력
     [SerializeField]
@@ -17,7 +14,6 @@ public class PlayerAttribute : MonoBehaviourPunCallbacks, IPunObservable
 
     // Player의 최대 체력
     private float PlayerHealthBarMax;
-    private bool isPlayerDead;
 
     void Start()
     {
@@ -57,20 +53,5 @@ public class PlayerAttribute : MonoBehaviourPunCallbacks, IPunObservable
     public int getPlayerNumb()
     {
         return PlayerNumb;
-    }
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void setPlayerDead(bool _isDead)
-    {
-        isPlayerDead = _isDead;
-    }
-
-    public bool getPlayerDead()
-    {
-        return isPlayerDead;
     }
 }
