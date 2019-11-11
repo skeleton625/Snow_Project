@@ -24,7 +24,7 @@ public class BallController : MonoBehaviourPunCallbacks
 
     void Start()
     {
-        hitEffect = Resources.Load("Prefabs/Particle/hitEffect") as GameObject;    
+        hitEffect = Resources.Load("Prefabs/Particle/hitEffect") as GameObject;
     }
 
     // Update is called once per frame
@@ -64,6 +64,8 @@ public class BallController : MonoBehaviourPunCallbacks
         // 충돌한 물체가 Player일 경우
         if (int.TryParse(_objectName, out _parsedName))
         {
+            collision.gameObject.GetComponent<UIController>().VisibleHealthBar();
+
             // 충돌한 Player의 피해를 다른 플레이어들에게도 갱신해 줌
             PhotonView pv = GameObject.Find(_objectName).GetComponent<PhotonView>();
             pv.RPC("AttackingPlayer", RpcTarget.All, _parsedName, ballDamage);
