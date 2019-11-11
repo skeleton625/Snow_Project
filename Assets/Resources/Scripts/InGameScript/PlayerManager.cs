@@ -45,8 +45,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         if(_deadPlayer.name == MasterPlayer.name)
         {
             MainCamera.transform.parent = null;
-            GameObject.Find("CharacterUI").transform.GetChild(1)
-                                        .gameObject.SetActive(true);
+            MasterPlayer.GetComponent<UIController>().VisibleDeadScene();
             IsDead = true;
         }
 
