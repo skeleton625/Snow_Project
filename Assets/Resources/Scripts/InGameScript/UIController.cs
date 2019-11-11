@@ -1,13 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using System.Collections;
 
 public class UIController : MonoBehaviour
 {
     [SerializeField]
     private GameObject PlayerUI;
-    [SerializeField]
-    private float MaxTime;
 
     private Slider HealthBar;
     private PhotonView pv;
@@ -15,13 +14,37 @@ public class UIController : MonoBehaviour
     private Transform TargetCamera;
     private float PrePlayerHealth;
 
-    private bool IsTimerStart;
-    private float CurrTime;
+    private GameObject DeadScene, ResumeScene;
+
+    private bool MouseVisible;
 
     void Start()
     {
         pv = GetComponent<PhotonView>();
         PlayerAtt = GetComponent<PlayerAttribute>();
+        DeadScene = GameObject.Find("CharacterUI").transform.GetChild(0).gameObject;
+        ResumeScene = GameObject.Find("CharacterUI").transform.GetChild(1).gameObject;
+        InitCharacterUI();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (!pv.IsMine)
+            HealthBar.transform.LookAt(TargetCamera);
+        SetPlayerHealthBar();
+        MouseLockInScene();
+    }
+
+    private void InitMouseVisible()
+    {
+        MouseVisible = false;
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    private void InitCharacterUI()
+    {
         TargetCamera = GameObject.Find("MainCamera").transform;
         if (pv.IsMine)
         {
@@ -36,15 +59,6 @@ public class UIController : MonoBehaviour
         PlayerUI.SetActive(false);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (!pv.IsMine)
-            HealthBar.transform.LookAt(TargetCamera);
-        SetPlayerHealthBar();
-        ActivateHealthBar();
-    }
-
     private void SetPlayerHealthBar()
     {
         if(PlayerAtt.getHealthBar() != PrePlayerHealth)
@@ -54,30 +68,41 @@ public class UIController : MonoBehaviour
         }
     }
 
-    private void ActivateHealthBar()
+    private IEnumerator ActivateHealthBar()
     {
-        if(IsTimerStart)
+        PlayerUI.SetActive(true);
+
+        yield return new WaitForSeconds(3f);
+
+        PlayerUI.SetActive(false);
+
+        yield return null;
+    }
+
+    private void MouseLockInScene()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (CurrTime < MaxTime)
-                CurrTime += Time.deltaTime;
+            MouseVisible = !MouseVisible;
+
+            Cursor.visible = MouseVisible;
+            if (MouseVisible)
+                Cursor.lockState = CursorLockMode.None;
             else
-            {
-                IsTimerStart = false;
-                PlayerUI.SetActive(false);
-            }
+                Cursor.lockState = CursorLockMode.Locked;
+
+            ResumeScene.SetActive(MouseVisible);
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    public void VisibleHealthBar()
     {
-        if(collision.gameObject.name == "SnowBall(Clone)")
-        {
-            if(!pv.IsMine)
-            {
-                IsTimerStart = true;
-                CurrTime = 0;
-                PlayerUI.SetActive(true);
-            }
-        }
+        StopCoroutine(ActivateHealthBar());
+        StartCoroutine(ActivateHealthBar());
+    }
+
+    public void VisibleDeadScene()
+    {
+        DeadScene.SetActive(true);
     }
 }
