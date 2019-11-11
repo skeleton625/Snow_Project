@@ -10,9 +10,7 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
     private string GameVersion;
     [SerializeField]
     private byte PlayerNumbers;
-    public bool IsLobbyConnected;
     public bool IsLobbyUpdate;
-    public bool IsRoomConnected;
     public bool IsRoomUpdate;
 
     private List<string> Rooms;
@@ -24,6 +22,7 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
     }
     public void OnLogin(string _nickName)
     {
+        StaticObjects.PlayerName = _nickName;
         PhotonNetwork.NickName = _nickName + "_0";
         PhotonNetwork.GameVersion = this.GameVersion;
         PhotonNetwork.ConnectUsingSettings();
@@ -38,7 +37,6 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
     {
         foreach (RoomInfo room in roomList)
         {
-            Debug.Log(room);
             if (room.RemovedFromList || !room.IsOpen)
                 Rooms.Remove(room.Name);
             else if(!Rooms.Exists(_room=>_room == room.Name))
@@ -50,14 +48,12 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
 
     public override void OnJoinedLobby()
     {
-        IsLobbyConnected = true;
         Debug.Log(PhotonNetwork.NickName + " is joined the lobby");
         base.OnJoinedLobby();
     }
 
     public override void OnJoinedRoom()
     {
-        IsRoomConnected = true;
         Debug.Log(PhotonNetwork.NickName + " is joined " + PhotonNetwork.CurrentRoom);
     }
 
@@ -78,11 +74,14 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
         return PhotonNetwork.JoinRoom(_roomName);
     }
 
-    public void LeaveRoom()
+    public bool LeaveRoom()
     {
-        IsRoomConnected = false;
-        IsLobbyConnected = false;
-        PhotonNetwork.LeaveRoom();
+        if(IsRoom())
+        {
+            PhotonNetwork.LeaveRoom();
+            return true;
+        }
+        return false;
     }
 
     public void DeleteRoom(string room)
@@ -126,5 +125,15 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
     public void setNickNameNumbering(int _num)
     {
         PhotonNetwork.NickName += '_' + _num;
+    }
+
+    public bool IsLobby()
+    {
+        return PhotonNetwork.InLobby;
+    }
+
+    public bool IsRoom()
+    {
+        return PhotonNetwork.InRoom;
     }
 }
