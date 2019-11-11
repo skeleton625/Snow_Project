@@ -25,6 +25,8 @@ public class MenuManager : MonoBehaviour
         IsReady = new bool[4];
         PV = GetComponent<PhotonView>();
         PhotonNet = GetComponent<PhotonInMenu>();
+        if (PhotonNet.LeaveRoom())
+            setMenuActive(1, null);
     }
 
     void Update()
@@ -37,8 +39,10 @@ public class MenuManager : MonoBehaviour
 
     public void setPlayerName()
     {
-        string _playerName = GameObject.Find("UserName/InputField").GetComponent<InputField>().text;
-        PhotonNet.OnLogin(_playerName);
+        string _name = GameObject.Find("UserName/InputField").GetComponent<InputField>().text;
+        if (_name == "")
+            _name = "NoName";
+        PhotonNet.OnLogin(_name);
     }
 
     public void setMenuActive(int _num, string option)
@@ -49,11 +53,8 @@ public class MenuManager : MonoBehaviour
         switch (_num)
         {
             case 1: case 3:
-                if (!PhotonNet.IsRoomConnected || !PhotonNet.IsLobbyConnected)
-                {
+                if (!PhotonNet.IsRoom() || !PhotonNet.IsLobby())
                     StartCoroutine(WaitingCoroutine(option));
-                    break;
-                }
                 break;
             default:
                 UI[_num].SetActive(true);
@@ -99,7 +100,7 @@ public class MenuManager : MonoBehaviour
                 GeneratePopup(3, "Someone don't press Ready Button");
             else
             {
-                PV.RPC("PlayerMoveScene", RpcTarget.All);
+                PV.RPC("PlayerMoveScene", RpcTarget.All, "GameScene");
                 PhotonNetwork.CurrentRoom.IsOpen = false;
             }
         }
@@ -183,7 +184,7 @@ public class MenuManager : MonoBehaviour
         switch (PreMenuNum)
         {
             case 1:
-                while (!PhotonNet.IsLobbyConnected)
+                while (!PhotonNet.IsLobby())
                     yield return null;
 
                 CreateRoomButtons();
@@ -191,7 +192,7 @@ public class MenuManager : MonoBehaviour
             case 3:
                 float _timer = 0;
 
-                while (!PhotonNet.IsRoomConnected)
+                while (!PhotonNet.IsRoom())
                 {
                     _timer += Time.deltaTime;
                     if (_timer > 8)
@@ -243,9 +244,9 @@ public class MenuManager : MonoBehaviour
     }
 
     [PunRPC]
-    private void PlayerMoveScene()
+    public void PlayerMoveScene(string _name)
     {
-        SceneManager.LoadScene("GameScene");
+        SceneManager.LoadScene(_name);
     }
 
     [PunRPC]
