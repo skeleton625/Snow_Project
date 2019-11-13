@@ -71,6 +71,6 @@ public class AttackController : MonoBehaviourPunCallbacks
         GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
         AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(PlayerDamage);
         if (AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar() <= 0)
-            masterPlayerManager.PlayerDead(PlayerNumber+"");
+            masterPlayerManager.PlayerDead(PlayerNumber);
     }
 }
