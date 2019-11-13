@@ -10,6 +10,7 @@ public class InButtonManager : MonoBehaviour
     }
     public void ReturnToLobbyButtonClick()
     {
+        StaticObjects.InitPlayerExist();
         SceneManager.LoadScene("MainMenu");
     }
 }
