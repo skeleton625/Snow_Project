@@ -118,6 +118,9 @@ public class MenuManager : MonoBehaviour
             if (!IsReady[i])
                 return false;
         }
+        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            StaticObjects.SetPlayerExist(i);
+
         return true;
     }
 

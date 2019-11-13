@@ -22,7 +22,6 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
     }
     public void OnLogin(string _nickName)
     {
-        StaticObjects.PlayerName = _nickName;
         PhotonNetwork.NickName = _nickName + "_0";
         PhotonNetwork.GameVersion = this.GameVersion;
         PhotonNetwork.ConnectUsingSettings();
