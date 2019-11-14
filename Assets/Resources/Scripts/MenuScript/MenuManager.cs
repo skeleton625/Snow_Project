@@ -92,7 +92,7 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    public void PlayerStartGame()
+    public void MasterStartGame()
     {
         if (PlayerNumber == 0)
         {
@@ -100,7 +100,7 @@ public class MenuManager : MonoBehaviour
                 GeneratePopup(3, "Someone don't press Ready Button");
             else
             {
-                PV.RPC("PlayerMoveScene", RpcTarget.All, "GameScene");
+                PV.RPC("PlayerStartGame", RpcTarget.All);
                 PhotonNetwork.CurrentRoom.IsOpen = false;
             }
         }
@@ -118,9 +118,6 @@ public class MenuManager : MonoBehaviour
             if (!IsReady[i])
                 return false;
         }
-        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
-            StaticObjects.SetPlayerExist(i);
-
         return true;
     }
 
@@ -247,9 +244,13 @@ public class MenuManager : MonoBehaviour
     }
 
     [PunRPC]
-    public void PlayerMoveScene(string _name)
+    public void PlayerStartGame()
     {
-        SceneManager.LoadScene(_name);
+        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            StaticObjects.SetPlayerExist(i);
+        StaticObjects.SetPlayerList(PhotonNetwork.PlayerList);
+        StaticObjects.MasterPlayerNumber = PlayerNumber;
+        SceneManager.LoadScene("GameScene");
     }
 
     [PunRPC]
