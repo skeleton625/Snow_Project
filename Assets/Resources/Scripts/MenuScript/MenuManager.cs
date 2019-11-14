@@ -158,9 +158,10 @@ public class MenuManager : MonoBehaviour
         {
             if (PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
             {
+                PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + '_' + i;
                 PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, PlayerReady);
                 PlayerNumber = i;
-                PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + '_' + i;
+                
             }
             GameObject PlayerPos = UI[3].transform.Find("Player " + i + "/Username/Text").gameObject;
             PlayerPos.GetComponent<Text>().text = _playerList[i].NickName.Split('_')[0];
