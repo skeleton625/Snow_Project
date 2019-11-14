@@ -4,7 +4,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
+public class PhotonInMenu : MonoBehaviourPunCallbacks
 {
     [SerializeField]
     private string GameVersion;
@@ -14,12 +14,12 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks, ILobbyCallbacks
     public bool IsRoomUpdate;
 
     private List<string> Rooms;
-    
-    void Awake()
+
+    void Start()
     {
         Rooms = new List<string>();
-        PhotonNetwork.AutomaticallySyncScene = true;
     }
+
     public void OnLogin(string _nickName)
     {
         PhotonNetwork.NickName = _nickName + "_0";

@@ -40,7 +40,7 @@ public class ButtonManager : MonoBehaviour
 
     public void GameStartButtonClick()
     {
-        PlayerMenu.PlayerStartGame();
+        PlayerMenu.MasterStartGame();
     }
 
     public void CancelRoomButtonClick()
