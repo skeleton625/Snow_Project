@@ -12,6 +12,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private int PlayerNumbers;
     [SerializeField]
     private Camera MainCamera;
+    
 
     private int masterPlayerNum;
     public int MasterPlayerNum
@@ -21,7 +22,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             return masterPlayerNum;
         }
     }
-    private float PlayerDeadTime;
     private bool IsDead;
 
     void Start()
@@ -34,7 +34,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     {
         GameObject _player = Models.GetPlayerModels(_playerNum);
 
-        if (_player.name == masterPlayerNum+"")
+        if (_player.name == masterPlayerNum + "")
         {
             MainCamera.transform.parent = null;
             StartCoroutine(MainCamera.GetComponent<MasterUIManager>().ActivateDeadScene(5));
@@ -63,8 +63,8 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             yield return null;
         }
         // 죽음 이펙트 표현
-        GameObject _deadEffect = 
-            Instantiate(Resources.Load(PlayerDeadEffectPos) as GameObject, _deadPos, Quaternion.Euler(-90,0,0));
+        GameObject _deadEffect =
+            Instantiate(Resources.Load(PlayerDeadEffectPos) as GameObject, _deadPos, Quaternion.Euler(-90, 0, 0));
 
         // 죽는 오브젝트 Disable
         yield return new WaitForSeconds(0.5f);
@@ -95,6 +95,12 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     }
 
     public void PlayerOutTheGame(int _num)
+    {
+        GetComponent<PhotonView>().RPC("PlayerDeactive", RpcTarget.All, _num);
+    }
+
+    [PunRPC]
+    private void PlayerDeactive(int _num)
     {
         Models.GetPlayerModels(_num).SetActive(false);
     }
