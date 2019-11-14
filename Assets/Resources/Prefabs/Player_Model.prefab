@@ -3113,7 +3113,6 @@ GameObject:
   - component: {fileID: 32878747490649050}
   - component: {fileID: 32878747490649053}
   - component: {fileID: 32878747490649052}
-  - component: {fileID: -8337194781113940822}
   m_Layer: 9
   m_Name: Player_Model
   m_TagString: Untagged
@@ -3201,9 +3200,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c167841d8d34017469546b127865c00a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerHealthBar: 100
-  PlayerAttackDamage: 5
-  PlayerNumb: 0
+  playerNumber: 0
+  playerDamage: 0
+  playerHealthMax: 0
 --- !u!114 &32878747490649051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3234,7 +3233,7 @@ MonoBehaviour:
   PlayerCamera: {fileID: 0}
   OiriginCameraPos: {fileID: 32878747229826395}
   RayPosition: {fileID: 32878747524040393}
-  WallSpeed: 3
+  WalkSpeed: 5
   RunSpeed: 8
   LookSensitivity: 8
 --- !u!114 &32878747490649053
@@ -3249,8 +3248,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04602a56ea3fb1341abd8023fbbff376, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerModel: {fileID: 32878747490649055}
   HealthUI: {fileID: 7256095009349816288}
+  PlayerAtt: {fileID: 0}
 --- !u!114 &32878747490649052
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3273,23 +3272,6 @@ MonoBehaviour:
   viewIdField: 0
   InstantiationId: -1
   isRuntimeInstantiated: 0
---- !u!114 &-8337194781113940822
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 32878747490649055}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7303a52efdb9a714fb9bd2291f468509, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CountScene: {fileID: 0}
-  DeadText: {fileID: 0}
-  CountText: {fileID: 0}
-  ResumeScene: {fileID: 0}
-  HealthBar: {fileID: 0}
 --- !u!1 &32878747492517106
 GameObject:
   m_ObjectHideFlags: 0
