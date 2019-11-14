@@ -1,7 +1,6 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
+using UnityEngine.UI;
 
 public class MasterUIManager : MonoBehaviour
 {
@@ -16,19 +15,24 @@ public class MasterUIManager : MonoBehaviour
     [SerializeField]
     private GameObject HealthBar;
 
-    private int MasterPlayerNum;
     private UIController MasterUI;
-    private bool MouseVisible = true;
+    private bool isMouseVisible;
+    public bool IsMouseVisible
+        { get { return isMouseVisible; } }
+    private bool isGameStart;
 
     void Start()
     {
-        MasterPlayerNum = 
-            GameObject.Find("StaticObjects").GetComponent<PlayerManager>().MasterPlayerNum;
-        MasterUI = new UIController(GameObject.Find(MasterPlayerNum+""), HealthBar);
+        StaticObjects staticObject = 
+            GameObject.Find("StaticObjects").GetComponent<StaticObjects>();
+        GameObject model = staticObject.GetPlayerModels(StaticObjects.MasterPlayerNumber);
+        MasterUI = new UIController(model, HealthBar);
 
-        MouseVisible = false;
-        Cursor.visible = MouseVisible;
+        isMouseVisible = false;
+        Cursor.visible = isMouseVisible;
         Cursor.lockState = CursorLockMode.Locked;
+        StartCoroutine(ActivateCountScene(3, model));
+        GameObject _player = GameObject.Find(StaticObjects.MasterPlayerNumber + "");
     }
 
     // Update is called once per frame
@@ -40,37 +44,49 @@ public class MasterUIManager : MonoBehaviour
 
     private void MouseLockInScene()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && isGameStart)
         {
-            MouseVisible = !MouseVisible;
+            isMouseVisible = !isMouseVisible;
 
-            Cursor.visible = MouseVisible;
-            if (MouseVisible)
+            Cursor.visible = isMouseVisible;
+            if (isMouseVisible)
                 Cursor.lockState = CursorLockMode.None;
             else
                 Cursor.lockState = CursorLockMode.Locked;
 
-            ResumeScene.SetActive(MouseVisible);
+            ResumeScene.SetActive(isMouseVisible);
         }
     }
 
-    public void VisibleCountScene(float _cnt, bool _isDead)
+    public IEnumerator ActivateDeadScene(float _cnt)
     {
-        StartCoroutine(CountdownCoroutine(_cnt, _isDead));
+        DeadText.SetActive(true);
+        CountScene.SetActive(true);
+        while (_cnt > 0)
+        {
+            CountText.GetComponent<Text>().text = _cnt + "";
+            CountText.GetComponent<Animator>().SetTrigger("Count");
+            yield return new WaitForSeconds(1f);
+            --_cnt;
+        }
+        CountScene.SetActive(false);
+        DeadText.SetActive(false);
     }
 
-    private IEnumerator CountdownCoroutine(float _cnt, bool _isDead)
+    private IEnumerator ActivateCountScene(float _cnt, GameObject _model)
     {
-        if (_isDead)
-            DeadText.SetActive(true);
-
-        CountScene.SetActive(true);
-
-        yield return new WaitForSeconds(_cnt);
-
+        _model.GetComponent<PlayerController>().enabled = false;
+        _model.GetComponent<AttackController>().enabled = false;
+        while (_cnt > 0)
+        {
+            CountText.GetComponent<Text>().text = _cnt + "";
+            CountText.GetComponent<Animator>().Play("CountDown_Start", -1, 0f);
+            yield return new WaitForSeconds(1f);
+            --_cnt;
+        }
+        _model.GetComponent<PlayerController>().enabled = true;
+        _model.GetComponent<AttackController>().enabled = true;
+        isGameStart = true;
         CountScene.SetActive(false);
-
-        if (_isDead)
-            DeadText.SetActive(false);
     }
 }
