@@ -16,25 +16,28 @@ public class AttackController : MonoBehaviourPunCallbacks
 
     // 플레이어가 공을 던진 후의 시간
     private float CurAttackTime;
-    // Photon View 객체
-    private PhotonView pv;
+    // 플레이어의 PhotonView 객체
+    private PhotonView MasterPv;
     // 플레이어의 상태 객체
     private PlayerAttribute PlayerAtt;
-    private PlayerManager masterPlayerManager;
+    private MasterUIManager UIManager;
+    private PlayerManager PManager;
 
     private bool IsAttack;
 
     void Start()
     {
-        pv = GetComponent<PhotonView>();
+
+        MasterPv = GetComponent<PhotonView>();
         PlayerAtt = GetComponent<PlayerAttribute>();
-        masterPlayerManager = GameObject.Find("StaticObjects").GetComponent<PlayerManager>();
+        UIManager = GameObject.Find("MainCamera").GetComponent<MasterUIManager>();
+        PManager = GameObject.Find("StaticObjects").GetComponent<PlayerManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(pv.IsMine)
+        if(MasterPv.IsMine && !UIManager.IsMouseVisible)
             TryAttack();
     }
 
@@ -61,16 +64,18 @@ public class AttackController : MonoBehaviourPunCallbacks
     {
         GameObject _clone = PhotonNetwork.Instantiate(ballObjectPos, ballPosition, ballRotation, 0);
         _clone.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.green);
-        _clone.GetComponent<BallController>().ballDamage = PlayerAtt.getAttackDamage();
-        _clone.GetComponent<BallController>().ThrowPlayer = PlayerAtt.getPlayerNumb();
+        _clone.GetComponent<BallController>().BallDamage = PlayerAtt.PlayerDamage;
+        _clone.GetComponent<BallController>().ThrowPlayerNum = PlayerAtt.PlayerNumber;
+        StaticObjects.BallCount = 1;
+        Debug.Log(StaticObjects.BallCount);
     }
 
     [PunRPC]
-    public void AttackingPlayer(int PlayerNumber, float PlayerDamage)
+    public void AttackingPlayer(int PlayerNumber, float PlayerDamage, GameObject ball)
     {
         GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
-        AttackedPlayer.GetComponent<PlayerAttribute>().setHealthBar(PlayerDamage);
-        if (AttackedPlayer.GetComponent<PlayerAttribute>().getHealthBar() <= 0)
-            masterPlayerManager.PlayerDead(PlayerNumber);
+        AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth = PlayerDamage;
+        if (AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth <= 0)
+            PManager.PlayerDead(PlayerNumber);
     }
 }
