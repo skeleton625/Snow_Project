@@ -5,38 +5,29 @@ using System.Collections;
 public class UIController : MonoBehaviour
 {
     [SerializeField]
-    private GameObject PlayerModel;
-    [SerializeField]
     private GameObject HealthUI;
+    [SerializeField]
+    private PlayerAttribute PlayerAtt;
 
     private float PrePlayerHealth;
     private Slider HealthBar;
-    private PlayerAttribute PlayerAtt;
-
-    public UIController()
-    {
-    }
 
     public UIController(GameObject _player, GameObject _healthUI)
     {
-        HealthUI.SetActive(false);
-
         HealthUI = _healthUI;
-        PlayerModel = _player;
-
         PlayerAtt = _player.GetComponent<PlayerAttribute>();
         HealthBar = _healthUI.GetComponent<Slider>();
 
-        PrePlayerHealth = PlayerAtt.getHealthBar();
-        HealthBar.value = PrePlayerHealth / PlayerAtt.getHealthBarMax();
+        PrePlayerHealth = PlayerAtt.PlayerHealth;
+        HealthBar.value = PrePlayerHealth / PlayerAtt.PlayerHealthMax;
     }
 
     public void SetPlayerHealthBar()
     {
-        if(PlayerAtt.getHealthBar() != PrePlayerHealth)
+        if(PlayerAtt.PlayerHealth != PrePlayerHealth)
         {
-            PrePlayerHealth = PlayerAtt.getHealthBar();
-            HealthBar.value = PrePlayerHealth / PlayerAtt.getHealthBarMax();
+            PrePlayerHealth = PlayerAtt.PlayerHealth;
+            HealthBar.value = PrePlayerHealth / PlayerAtt.PlayerHealthMax;
         }
     }
     public void VisibleHealthBar()
