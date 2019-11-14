@@ -71,7 +71,7 @@ public class AttackController : MonoBehaviourPunCallbacks
     }
 
     [PunRPC]
-    public void AttackingPlayer(int PlayerNumber, float PlayerDamage, GameObject ball)
+    public void AttackingPlayer(int PlayerNumber, float PlayerDamage)
     {
         GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
         AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth = PlayerDamage;

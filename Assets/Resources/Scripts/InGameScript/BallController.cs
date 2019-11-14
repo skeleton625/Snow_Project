@@ -65,7 +65,7 @@ public class BallController : MonoBehaviourPunCallbacks
 
             // 충돌한 Player의 피해를 다른 플레이어들에게도 갱신해 줌
             PhotonView pv = GameObject.Find(_objectName).GetComponent<PhotonView>();
-            pv.RPC("AttackingPlayer", RpcTarget.All, _parsedName, ballDamage, gameObject);
+            pv.RPC("AttackingPlayer", RpcTarget.All, _parsedName, ballDamage);
 
             // 충돌한 Player의 Rigidbody를 통해 넉백을 진행
             Vector3 _knockBack = collision.contacts[0].point.normalized + new Vector3(0, 1f, 0);
