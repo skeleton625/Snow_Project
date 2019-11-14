@@ -15,7 +15,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Transform RayPosition;
     // 걷고 있는 속도 변수
     [SerializeField]
-    private float WallSpeed;
+    private float WalkSpeed;
     // 달리는 속도 변수
     [SerializeField]
     private float RunSpeed;
@@ -50,39 +50,34 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Vector3 CurrPos;
     private Quaternion CurrRot;
 
-    // Photon Newtwork 객체
-    private PhotonView pv;
+    // Player가 현재 클라이언트에서 Master인지 확인
+    PhotonView MasterPv;
 
     // Start is called before the first frame update
     void Start()
     {
-        Character = GetComponent<Rigidbody>();
-        CharAnimator = GetComponent<Animator>();
-        pv = GetComponent<PhotonView>();
-        ApplySpeed = WallSpeed;
+        MasterPv = GetComponent<PhotonView>();
+        ApplySpeed = WalkSpeed;
+        CurrPos = gameObject.transform.position;
         RayDist = Mathf.Sqrt(OiriginCameraPos.localPosition.y * OiriginCameraPos.localPosition.y +
                                 OiriginCameraPos.localPosition.z * OiriginCameraPos.localPosition.z);
 
-        if (pv.IsMine)
-        {
-            if (GetComponent<PlayerAttribute>().getPlayerNumb() % 2 == 1)
-            {
-                CurrentRotationY = 180;
-                PlayerCamera.transform.Rotate(20, 180, 0);
-            }
-            else
-            {
-                CurrentRotationY = 0;
-                PlayerCamera.transform.Rotate(20, 0, 0);
-            }
-        }
-        
+        Character = GetComponent<Rigidbody>();
+        CharAnimator = GetComponent<Animator>();
+
+        if (GetComponent<PlayerAttribute>().PlayerNumber % 2 == 1)
+            CurrentRotationY = 180;
+        else
+            CurrentRotationY = 0;
+
+        if (MasterPv.IsMine)
+            PlayerCamera.transform.Rotate(20, CurrentRotationY, 0);
     }
 
     // 물리적인 이동을 담당하는 Update 함수
     private void FixedUpdate()
     {
-        if(pv.IsMine)
+        if(MasterPv.IsMine)
         {
             TryRun();
             Move();
@@ -95,9 +90,9 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             gameObject.transform.rotation = Quaternion.Slerp(gameObject.transform.rotation, CurrRot, Time.deltaTime * 10.0f);
         }
         // Character의 움직임을 Animation에 적용
+        CharAnimator.SetBool("Running", IsRun);
         CharAnimator.SetBool("FrontWalk", IsWalk);
         CharAnimator.SetFloat("SideWalk", SideWalk);
-        CharAnimator.SetBool("Running", IsRun);
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -106,16 +101,16 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         {
             stream.SendNext(transform.position);
             stream.SendNext(transform.rotation);
-            stream.SendNext(IsWalk);
             stream.SendNext(IsRun);
+            stream.SendNext(IsWalk);
             stream.SendNext(SideWalk);
         }
         else
         {
             CurrPos = (Vector3)stream.ReceiveNext();
             CurrRot = (Quaternion)stream.ReceiveNext();
-            IsWalk = (bool)stream.ReceiveNext();
             IsRun = (bool)stream.ReceiveNext();
+            IsWalk = (bool)stream.ReceiveNext();
             SideWalk = (float)stream.ReceiveNext();
         }
     }
@@ -160,7 +155,7 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private void stopRunning()
     {
         IsRun = false;
-        ApplySpeed = WallSpeed;
+        ApplySpeed = WalkSpeed;
     }
 
     // 캐릭터의 방향 전환 함수
