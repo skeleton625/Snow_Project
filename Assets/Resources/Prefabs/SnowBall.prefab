@@ -126,8 +126,8 @@ MonoBehaviour:
   ballSpeed: 30
   ballForce: 300
   limitTime: 3
-  ballDamage: 0
-  ThrowPlayer: 0
+  hitEffect: {fileID: 1496123321113413113, guid: 34a012b88ad21a84bac429462557d9ba,
+    type: 3}
 --- !u!114 &1014276590268465241
 MonoBehaviour:
   m_ObjectHideFlags: 0
