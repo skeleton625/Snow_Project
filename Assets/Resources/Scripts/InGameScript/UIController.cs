@@ -12,6 +12,11 @@ public class UIController : MonoBehaviour
     private float PrePlayerHealth;
     private Slider HealthBar;
 
+    void Start()
+    {
+        HealthBar = HealthUI.GetComponent<Slider>();    
+    }
+
     public UIController(GameObject _player, GameObject _healthUI)
     {
         HealthUI = _healthUI;
