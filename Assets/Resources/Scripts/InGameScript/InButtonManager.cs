@@ -13,8 +13,12 @@ public class InButtonManager : MonoBehaviour
 
     public void ReturnToLobbyButtonClick()
     {
-        StaticObjects.InitPlayerExist();
         PManager.PlayerOutTheGame(StaticObjects.MasterPlayerNumber);
         SceneManager.LoadScene("MainMenu");
+    }
+
+    public void GameEndButtonClick()
+    {
+        Application.Quit();
     }
 }
