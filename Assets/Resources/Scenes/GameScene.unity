@@ -233,7 +233,7 @@ PrefabInstance:
     - target: {fileID: 32878747490649055, guid: b84d0d69ccd45584a92b2fa078be9411,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 32878747490649028, guid: b84d0d69ccd45584a92b2fa078be9411,
         type: 3}
@@ -344,7 +344,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 102626895}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 32878747590522256}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c167841d8d34017469546b127865c00a, type: 3}
   m_Name: 
@@ -685,7 +685,7 @@ PrefabInstance:
     - target: {fileID: 32878747490649055, guid: b84d0d69ccd45584a92b2fa078be9411,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 32878747490649028, guid: b84d0d69ccd45584a92b2fa078be9411,
         type: 3}
@@ -796,7 +796,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 523939366}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 32878747475357177}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c167841d8d34017469546b127865c00a, type: 3}
   m_Name: 
@@ -1056,6 +1056,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
+    - {fileID: 32878747490649031, guid: 066a8b6ae16bb1e43a441295d1f2ed73, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 066a8b6ae16bb1e43a441295d1f2ed73, type: 3}
 --- !u!1 &582877896 stripped
 GameObject:
@@ -1704,7 +1705,7 @@ PrefabInstance:
     - target: {fileID: 32878747490649055, guid: b84d0d69ccd45584a92b2fa078be9411,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 32878747490649028, guid: b84d0d69ccd45584a92b2fa078be9411,
         type: 3}
@@ -1816,7 +1817,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 937373526}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 32878746789227657}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c167841d8d34017469546b127865c00a, type: 3}
   m_Name: 
@@ -2290,7 +2291,7 @@ PrefabInstance:
     - target: {fileID: 32878747490649055, guid: b84d0d69ccd45584a92b2fa078be9411,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 32878747490649028, guid: b84d0d69ccd45584a92b2fa078be9411,
         type: 3}
@@ -2401,7 +2402,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 1347310449}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 32878746144428206}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c167841d8d34017469546b127865c00a, type: 3}
   m_Name: 
@@ -2726,7 +2727,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 32878747490649031, guid: 066a8b6ae16bb1e43a441295d1f2ed73, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 066a8b6ae16bb1e43a441295d1f2ed73, type: 3}
 --- !u!1 &1432000541 stripped
 GameObject:
@@ -2895,7 +2897,18 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1660842521}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1660842523}
+        m_MethodName: GameEndButtonClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
 --- !u!114 &1660842521
@@ -3019,7 +3032,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 32878747490649031, guid: 066a8b6ae16bb1e43a441295d1f2ed73, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 066a8b6ae16bb1e43a441295d1f2ed73, type: 3}
 --- !u!1 &1734716926 stripped
 GameObject:
@@ -3098,6 +3112,11 @@ MonoBehaviour:
   PlayerDeadEffectPos: Prefabs/Particle/deadEffect
   PlayerNumbers: 0
   MainCamera: {fileID: 1121504171}
+  PlayerAttackDamage:
+  - 5
+  - 5
+  - 5
+  - 5
 --- !u!4 &1802875182
 Transform:
   m_ObjectHideFlags: 0
@@ -3121,7 +3140,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1802875180}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e772885725620340b19f3c618363c93, type: 3}
+  m_Script: {fileID: 11500000, guid: a694349b8faf5c64dbb8fc4991553b54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Beacons:
@@ -3139,6 +3158,13 @@ MonoBehaviour:
   - {fileID: 1432000541}
   - {fileID: 1734716926}
   - {fileID: 1993536150}
+  SnowBall: {fileID: 5845711870423700000, guid: 893c0e6d061b271438d9bd6f526d0de9,
+    type: 3}
+  AttackEffect: {fileID: 1496123321113413113, guid: 34a012b88ad21a84bac429462557d9ba,
+    type: 3}
+  EachBallCount: 15
+  BallGenPos: {x: -10, y: 1, z: -6}
+  MasterPv: {fileID: 0}
 --- !u!114 &1802875184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3384,7 +3410,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 32878747490649031, guid: 066a8b6ae16bb1e43a441295d1f2ed73, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 066a8b6ae16bb1e43a441295d1f2ed73, type: 3}
 --- !u!1 &1993536150 stripped
 GameObject:
@@ -3462,7 +3489,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: End Game
+  m_Text: Exit Game
 --- !u!222 &1993592006
 CanvasRenderer:
   m_ObjectHideFlags: 0
