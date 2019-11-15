@@ -5,12 +5,17 @@ using System.Collections;
 public class UIController : MonoBehaviour
 {
     [SerializeField]
+    private float ActivateFullTime;
+    [SerializeField]
     private GameObject HealthUI;
     [SerializeField]
     private PlayerAttribute PlayerAtt;
 
-    private float PrePlayerHealth;
+    private bool IsActivate;
     private Slider HealthBar;
+    private float PrePlayerHealth;
+    private float ActivateTime;
+
 
     void Start()
     {
@@ -37,19 +42,23 @@ public class UIController : MonoBehaviour
     }
     public void VisibleHealthBar()
     {
-        StopCoroutine(ActivateHealthBar());
-        SetPlayerHealthBar();
-        StartCoroutine(ActivateHealthBar());
+        ActivateTime = 0;
+        if (!IsActivate)
+            StartCoroutine(ActivateHealthBar());
     }
 
     private IEnumerator ActivateHealthBar()
     {
+        IsActivate = true;
         HealthUI.SetActive(true);
-        Debug.Log(HealthUI);
-        yield return new WaitForSeconds(3f);
+        while(ActivateTime < ActivateFullTime)
+        {
+            ActivateTime += Time.deltaTime;
+            yield return null;
+        }
 
+        IsActivate = false;
         HealthUI.SetActive(false);
-
         yield return null;
     }
 }
