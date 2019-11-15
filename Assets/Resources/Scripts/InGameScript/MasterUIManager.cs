@@ -19,12 +19,11 @@ public class MasterUIManager : MonoBehaviour
     private bool isMouseVisible;
     public bool IsMouseVisible
         { get { return isMouseVisible; } }
-    private bool isGameStart;
 
     void Start()
     {
-        StaticObjects staticObject = 
-            GameObject.Find("StaticObjects").GetComponent<StaticObjects>();
+        InGameObjects staticObject = 
+            GameObject.Find("StaticObjects").GetComponent<InGameObjects>();
         GameObject model = staticObject.GetPlayerModels(StaticObjects.MasterPlayerNumber);
         MasterUI = new UIController(model, HealthBar);
 
@@ -44,7 +43,7 @@ public class MasterUIManager : MonoBehaviour
 
     private void MouseLockInScene()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && isGameStart)
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             isMouseVisible = !isMouseVisible;
 
@@ -75,8 +74,8 @@ public class MasterUIManager : MonoBehaviour
 
     private IEnumerator ActivateCountScene(float _cnt, GameObject _model)
     {
-        _model.GetComponent<PlayerController>().enabled = false;
-        _model.GetComponent<AttackController>().enabled = false;
+        //_model.GetComponent<PlayerController>().enabled = false;
+        //_model.GetComponent<AttackController>().enabled = false;
         while (_cnt > 0)
         {
             CountText.GetComponent<Text>().text = _cnt + "";
@@ -84,9 +83,8 @@ public class MasterUIManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
             --_cnt;
         }
-        _model.GetComponent<PlayerController>().enabled = true;
-        _model.GetComponent<AttackController>().enabled = true;
-        isGameStart = true;
+        //_model.GetComponent<PlayerController>().enabled = true;
+        //_model.GetComponent<AttackController>().enabled = true;
         CountScene.SetActive(false);
     }
 }
