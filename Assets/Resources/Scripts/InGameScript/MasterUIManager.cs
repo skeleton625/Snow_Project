@@ -74,8 +74,8 @@ public class MasterUIManager : MonoBehaviour
 
     private IEnumerator ActivateCountScene(float _cnt, GameObject _model)
     {
-        //_model.GetComponent<PlayerController>().enabled = false;
-        //_model.GetComponent<AttackController>().enabled = false;
+        _model.GetComponent<PlayerController>().enabled = false;
+        _model.GetComponent<AttackController>().enabled = false;
         while (_cnt > 0)
         {
             CountText.GetComponent<Text>().text = _cnt + "";
@@ -83,8 +83,8 @@ public class MasterUIManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
             --_cnt;
         }
-        //_model.GetComponent<PlayerController>().enabled = true;
-        //_model.GetComponent<AttackController>().enabled = true;
+        _model.GetComponent<PlayerController>().enabled = true;
+        _model.GetComponent<AttackController>().enabled = true;
         CountScene.SetActive(false);
     }
 }
