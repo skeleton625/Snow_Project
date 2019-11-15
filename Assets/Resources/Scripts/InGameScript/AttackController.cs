@@ -74,12 +74,12 @@ public class AttackController : MonoBehaviour
         // 같은 눈덩이 오브젝트의 경우 무시
         if (collision.gameObject.tag == "SnowBall")
         {
+            int _player = int.Parse(collision.gameObject.name.Split('_')[0]);
+
             // 자기 공에 대해선 무시
-            if (collision.gameObject.name.Split('_')[0] == StaticObjects.MasterPlayerNumber + "")
+            if (_player == StaticObjects.MasterPlayerNumber)
                 return;
 
-            int _player = int.Parse(collision.gameObject.name.Split('_')[0]);
-            Debug.Log(_player);
             PlayerPv.RPC("SendPlayerAttacked", RpcTarget.All, StaticObjects.MasterPlayerNumber, _player);
         }
     }
@@ -91,9 +91,10 @@ public class AttackController : MonoBehaviour
         GameObject AttackedPlayer = Models.GetPlayerModels(_player);
         AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth =
                                     PManager.GetPlayerDamage(_attackPlayer);
+        AttackedPlayer.GetComponent<UIController>().SetPlayerHealthBar();
 
-        Debug.Log(AttackedPlayer);
-        AttackedPlayer.GetComponent<UIController>().VisibleHealthBar();
+        if(_player != StaticObjects.MasterPlayerNumber)
+            AttackedPlayer.GetComponent<UIController>().VisibleHealthBar();
 
         // 공격 당한 플레이어의 체력이 0보다 작을 경우, 해당 플레이어 사망
         if (AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth <= 0)
