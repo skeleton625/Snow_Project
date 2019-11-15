@@ -45,7 +45,7 @@ public class UIController : MonoBehaviour
     private IEnumerator ActivateHealthBar()
     {
         HealthUI.SetActive(true);
-
+        Debug.Log(HealthUI);
         yield return new WaitForSeconds(3f);
 
         HealthUI.SetActive(false);
