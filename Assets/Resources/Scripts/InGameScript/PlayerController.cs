@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
-public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
+public class PlayerController : MonoBehaviour, IPunObservable
 {
     // Player Camera 오브젝트
     public Camera PlayerCamera;
@@ -51,12 +51,12 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
     private Quaternion CurrRot;
 
     // Player가 현재 클라이언트에서 Master인지 확인
-    PhotonView MasterPv;
+    private PhotonView PlayerPv;
 
     // Start is called before the first frame update
     void Start()
     {
-        MasterPv = GetComponent<PhotonView>();
+        PlayerPv = GetComponent<PhotonView>();
         ApplySpeed = WalkSpeed;
         CurrPos = gameObject.transform.position;
         RayDist = Mathf.Sqrt(OiriginCameraPos.localPosition.y * OiriginCameraPos.localPosition.y +
@@ -69,15 +69,20 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
             CurrentRotationY = 180;
         else
             CurrentRotationY = 0;
+        transform.Rotate(0, CurrentRotationY, 0);
 
-        if (MasterPv.IsMine)
+        if (PlayerPv.IsMine)
+        {
             PlayerCamera.transform.Rotate(20, CurrentRotationY, 0);
+            PlayerCamera.transform.parent = gameObject.transform;
+        }
+            
     }
 
     // 물리적인 이동을 담당하는 Update 함수
     private void FixedUpdate()
     {
-        if(MasterPv.IsMine)
+        if(PlayerPv.IsMine)
         {
             TryRun();
             Move();
@@ -167,7 +172,6 @@ public class PlayerController : MonoBehaviourPunCallbacks, IPunObservable
         CurrentRotationY += _yRotation * LookSensitivity;
         // Character의 지역 Y 축에 대한 회전 값 정의 -> 캐릭터 방향 회전
         gameObject.transform.localEulerAngles = new Vector3(0, CurrentRotationY, 0);
-        PlayerCamera.transform.parent = gameObject.transform;
     }
 
     // 카메라의 오브젝트 통과를 억제하는 함수
