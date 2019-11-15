@@ -1,18 +1,20 @@
 ﻿using System.Collections;
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class PlayerManager : MonoBehaviourPunCallbacks
 {
     [SerializeField]
-    private StaticObjects Models;
+    private InGameObjects Models;
     [SerializeField]
     private string PlayerDeadEffectPos;
     [SerializeField]
     private int PlayerNumbers;
     [SerializeField]
     private Camera MainCamera;
-    
+    [SerializeField]
+    private float[] PlayerAttackDamage;
 
     private int masterPlayerNum;
     public int MasterPlayerNum
@@ -79,19 +81,34 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     {
         for (int i = 0; i < 4; i++)
         {
-            if (!StaticObjects.GetPlayerExist(i))
-                continue;
-
             GameObject _player = Models.GetPlayerModels(i);
-            _player.SetActive(true);
+            if(i >= PhotonNetwork.PlayerList.Length)
+            {
+                _player.SetActive(false);
+                continue;
+            }
+
             if (i == masterPlayerNum)
+            {
                 _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
+                GetComponent<InGameObjects>().MasterPv = _player.GetComponent<PhotonView>();
+            }
 
-            _player.GetComponent<PlayerAttribute>().PlayerNumber = i;
             _player.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[i]);
-        }
+            _player.GetComponent<PlayerAttribute>().PlayerNumber = i;
+            _player.GetComponent<PlayerController>().enabled = true;
+            _player.GetComponent<AttackController>().enabled = true;
+            _player.GetComponent<PlayerAttribute>().enabled = true;
+            _player.GetComponent<UIController>().enabled = true;
 
+            yield return null;
+        }
         yield return null;
+    }
+
+    public float GetPlayerDamage(int _player)
+    {
+        return PlayerAttackDamage[_player];
     }
 
     public void PlayerOutTheGame(int _num)
@@ -103,5 +120,11 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private void PlayerDeactive(int _num)
     {
         Models.GetPlayerModels(_num).SetActive(false);
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        GetComponent<PhotonView>().RPC("PlayerDeactive", RpcTarget.All, int.Parse(otherPlayer.NickName.Split('_')[1]));
+        base.OnPlayerLeftRoom(otherPlayer);
     }
 }
