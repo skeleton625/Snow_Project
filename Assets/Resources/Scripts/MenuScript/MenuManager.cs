@@ -247,9 +247,6 @@ public class MenuManager : MonoBehaviour
     [PunRPC]
     public void PlayerStartGame()
     {
-        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
-            StaticObjects.SetPlayerExist(i);
-        StaticObjects.SetPlayerList(PhotonNetwork.PlayerList);
         StaticObjects.MasterPlayerNumber = PlayerNumber;
         SceneManager.LoadScene("GameScene");
     }
