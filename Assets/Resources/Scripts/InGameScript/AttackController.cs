@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 using Photon.Pun;
 
-public class AttackController : MonoBehaviourPunCallbacks
+public class AttackController : MonoBehaviour
 {
     // 공격 주기 변수
     [SerializeField]
@@ -11,33 +10,35 @@ public class AttackController : MonoBehaviourPunCallbacks
     // 공격 눈덩이의 생성 위치
     [SerializeField]
     private Transform BallGeneratePos;
+    // 공격 눈덩이 주소
     [SerializeField]
     private string ballObjectPos;
 
     // 플레이어가 공을 던진 후의 시간
     private float CurAttackTime;
     // 플레이어의 PhotonView 객체
-    private PhotonView MasterPv;
-    // 플레이어의 상태 객체
-    private PlayerAttribute PlayerAtt;
+    private PhotonView PlayerPv;
     private MasterUIManager UIManager;
     private PlayerManager PManager;
-
+    private InGameObjects Models;
+    
     private bool IsAttack;
 
     void Start()
     {
+        GameObject staticObj = GameObject.Find("StaticObjects");
+        PManager = staticObj.GetComponent<PlayerManager>();
+        Models = staticObj.GetComponent<InGameObjects>();
+        PlayerPv = GetComponent<PhotonView>();
 
-        MasterPv = GetComponent<PhotonView>();
-        PlayerAtt = GetComponent<PlayerAttribute>();
-        UIManager = GameObject.Find("MainCamera").GetComponent<MasterUIManager>();
-        PManager = GameObject.Find("StaticObjects").GetComponent<PlayerManager>();
+        if (PlayerPv.IsMine)
+            UIManager = GameObject.Find("MainCamera").GetComponent<MasterUIManager>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(MasterPv.IsMine && !UIManager.IsMouseVisible)
+        if(PlayerPv.IsMine && !UIManager.IsMouseVisible)
             TryAttack();
     }
 
@@ -55,27 +56,47 @@ public class AttackController : MonoBehaviourPunCallbacks
 
         if(Input.GetMouseButton(0) && IsAttack)
         {
-            Attack(BallGeneratePos.position, transform.rotation);
+            PlayerPv.RPC("SendGetSnowBall",RpcTarget.All, 
+                         StaticObjects.MasterPlayerNumber, BallGeneratePos.position, BallGeneratePos.rotation);
             IsAttack = false;
         }
     }
 
-    private void Attack(Vector3 ballPosition, Quaternion ballRotation)
+    [PunRPC]
+    private void SendGetSnowBall(int _player, Vector3 pos, Quaternion rot)
     {
-        GameObject _clone = PhotonNetwork.Instantiate(ballObjectPos, ballPosition, ballRotation, 0);
-        _clone.GetComponent<MeshRenderer>().material.SetColor("_Color", Color.green);
-        _clone.GetComponent<BallController>().BallDamage = PlayerAtt.PlayerDamage;
-        _clone.GetComponent<BallController>().ThrowPlayerNum = PlayerAtt.PlayerNumber;
-        StaticObjects.BallCount = 1;
-        Debug.Log(StaticObjects.BallCount);
+        Models.GetSnowBall(_player, pos, rot);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        
+        // 같은 눈덩이 오브젝트의 경우 무시
+        if (collision.gameObject.tag == "SnowBall")
+        {
+            // 자기 공에 대해선 무시
+            if (collision.gameObject.name.Split('_')[0] == StaticObjects.MasterPlayerNumber + "")
+                return;
+
+            int _player = int.Parse(collision.gameObject.name.Split('_')[0]);
+            Debug.Log(_player);
+            PlayerPv.RPC("SendPlayerAttacked", RpcTarget.All, StaticObjects.MasterPlayerNumber, _player);
+        }
     }
 
     [PunRPC]
-    public void AttackingPlayer(int PlayerNumber, float PlayerDamage)
+    private void SendPlayerAttacked(int _player, int _attackPlayer)
     {
-        GameObject AttackedPlayer = GameObject.Find(PlayerNumber.ToString());
-        AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth = PlayerDamage;
+        // 각 플레이어 모델에 피해 적용
+        GameObject AttackedPlayer = Models.GetPlayerModels(_player);
+        AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth =
+                                    PManager.GetPlayerDamage(_attackPlayer);
+
+        Debug.Log(AttackedPlayer);
+        AttackedPlayer.GetComponent<UIController>().VisibleHealthBar();
+
+        // 공격 당한 플레이어의 체력이 0보다 작을 경우, 해당 플레이어 사망
         if (AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth <= 0)
-            PManager.PlayerDead(PlayerNumber);
+            PManager.PlayerDead(_player);
     }
 }

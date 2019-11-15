@@ -3,74 +3,74 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class BallController : MonoBehaviourPunCallbacks
+public class BallController : MonoBehaviour
 {
-    // 공의 속성 값
+    // 공의 속성 변수
     [SerializeField]
-    private float ballSpeed;
+    private float BallSpeed;
     [SerializeField]
-    private float ballForce;
-    private float ballDamage;
-    public float BallDamage
-        { set { ballDamage = value; } }
-    private int throwPlayerNum;
-    public int ThrowPlayerNum
-        { set { throwPlayerNum = value; } }
+    private float BallForce;
+    // 1회 공격 가능 시간 및 공격하고 지난 시간 변수
+    [SerializeField]
+    private float AttackLimitTime;
+    private bool IsActive;
+    // 공 관리 객체
+    [SerializeField]
+    private InGameObjects Models;
+    private PhotonView PlayerPv;
 
-    [SerializeField]
-    private float limitTime;
-    private float curTime;
-
-    [SerializeField]
-    private GameObject hitEffect;
-
-    // Update is called once per frame
-    void Update()
+    void Start()
     {
-        ThrowBall();
+        
+    }
+
+    public BallController(InGameObjects _models)
+    {
+        Models = _models;
+        PlayerPv = GetComponent<PhotonView>();
     }
 
     // 공을 던지는 함수
-    private void ThrowBall()
+    public IEnumerator ThrowingBall()
     {
-        // 제한 시간 동안 공이 움직이도록 함
-        if (curTime < limitTime)
+        // 제한된 시간 동안 공이 이동하도록 구현
+        float _time = 0;
+        while (_time < AttackLimitTime)
         {
-            curTime += Time.deltaTime;
-            transform.Translate(Vector3.forward * ballSpeed * Time.deltaTime);
+            transform.Translate(Vector3.forward * BallSpeed * Time.deltaTime);
+            _time += Time.deltaTime;
+            yield return null;
         }
-        // 제한 시간이 지나면 공을 삭제
-        else
-            Destroy(gameObject);
+
+        // 제한 시간이 다되면 움직임을 종료하고 탄창에 추가
+        PlayerPv.RPC("SendSetSnowBall", RpcTarget.All, gameObject.name.Split('_'));
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        int _parsedName;
-        // 공과 충돌한 Player의 번호를 파악
-        string _objectName = collision.gameObject.name;
-        if (_objectName == throwPlayerNum+"")
+        // 같은 눈덩이 오브젝트의 경우 무시
+        if (collision.gameObject.tag == "SnowBall")
             return;
 
+        // 충돌한 위치에 충돌 효과 코루틴 실행
         Vector3 conflictPos = collision.contacts[0].point;
         Vector3 conflictRot = collision.contacts[0].normal;
-        GameObject clone = Instantiate(hitEffect, conflictPos, Quaternion.LookRotation(conflictRot));
-        /* 생성된 피격 효과 오브젝트가 2초 뒤에 삭제되도록 함 */
-        Destroy(clone, 1f);
-        
-        // 충돌한 물체가 Player일 경우
-        if (int.TryParse(_objectName, out _parsedName))
-        {
-            collision.gameObject.GetComponent<UIController>().VisibleHealthBar();
+        PlayerPv.RPC("SendGetAttackEffect", RpcTarget.All, conflictPos, conflictRot);
+        // 충돌된 공에 대해 다시 BallCylinder에 입력
+        PlayerPv.RPC("SendSetSnowBall", RpcTarget.All, gameObject.name.Split('_'));
+    }
 
-            // 충돌한 Player의 피해를 다른 플레이어들에게도 갱신해 줌
-            PhotonView pv = GameObject.Find(_objectName).GetComponent<PhotonView>();
-            pv.RPC("AttackingPlayer", RpcTarget.All, _parsedName, ballDamage);
+    [PunRPC]
+    private void SendSetSnowBall(string[] _nums)
+    {
+        Models.SetSnowBall(int.Parse(_nums[0]), int.Parse(_nums[1]));
+    }
 
-            // 충돌한 Player의 Rigidbody를 통해 넉백을 진행
-            Vector3 _knockBack = collision.contacts[0].point.normalized + new Vector3(0, 1f, 0);
-            collision.gameObject.GetComponent<Rigidbody>().velocity = Vector3.zero;
-            collision.gameObject.GetComponent<Rigidbody>().AddForce(_knockBack * ballForce);
-        }
+    [PunRPC]
+    private void SendGetAttackEffect(Vector3 pos, Vector3 rot)
+    {
+        Debug.Log(gameObject.name + " " + pos + " " + rot);
+        Debug.Log(Models);
+        Models.GetAttackEffect(pos, rot);
     }
 }
