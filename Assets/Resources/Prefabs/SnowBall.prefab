@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 7799917699774210429}
   m_Layer: 0
   m_Name: SnowBall
-  m_TagString: Untagged
+  m_TagString: SnowBall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -123,11 +123,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d293076f2fda5840a65442851eb46f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballSpeed: 30
-  ballForce: 300
-  limitTime: 3
-  hitEffect: {fileID: 1496123321113413113, guid: 34a012b88ad21a84bac429462557d9ba,
-    type: 3}
+  BallSpeed: 25
+  BallForce: 5
+  AttackLimitTime: 3
 --- !u!114 &1014276590268465241
 MonoBehaviour:
   m_ObjectHideFlags: 0
