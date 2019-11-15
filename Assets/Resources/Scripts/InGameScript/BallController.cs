@@ -19,12 +19,7 @@ public class BallController : MonoBehaviour
     private InGameObjects Models;
     private PhotonView PlayerPv;
 
-    void Start()
-    {
-        
-    }
-
-    public BallController(InGameObjects _models)
+    public void BallControllerInit(InGameObjects _models)
     {
         Models = _models;
         PlayerPv = GetComponent<PhotonView>();
@@ -69,8 +64,6 @@ public class BallController : MonoBehaviour
     [PunRPC]
     private void SendGetAttackEffect(Vector3 pos, Vector3 rot)
     {
-        Debug.Log(gameObject.name + " " + pos + " " + rot);
-        Debug.Log(Models);
         Models.GetAttackEffect(pos, rot);
     }
 }
