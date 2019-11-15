@@ -53,7 +53,7 @@ public class InGameObjects : MonoBehaviour
                 _ball.name = i + "_" + j;
                 _ball.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[i]);
                 _ball.GetComponent<PhotonView>().ViewID = _ballNum++;
-                _ball.GetComponent<BallController>(this);
+                _ball.GetComponent<BallController>().BallControllerInit(this);
 
                 // 비활성화 상태로 Queue에 추가
                 _ball.SetActive(false);
