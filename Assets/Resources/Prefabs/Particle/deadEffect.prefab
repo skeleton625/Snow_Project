@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8163990395505180307}
   - component: {fileID: 8163990395505180306}
   m_Layer: 0
-  m_Name: deadEffect
+  m_Name: DeadEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -115,7 +115,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1
+      scalar: 3
       minScalar: 5
       maxCurve:
         serializedVersion: 2

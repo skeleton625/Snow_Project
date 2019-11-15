@@ -18,12 +18,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     private int masterPlayerNum;
     public int MasterPlayerNum
-    {
-        get
-        {
-            return masterPlayerNum;
-        }
-    }
+        { get{ return masterPlayerNum; } }
     private bool IsDead;
 
     void Start()
@@ -69,7 +64,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
             Instantiate(Resources.Load(PlayerDeadEffectPos) as GameObject, _deadPos, Quaternion.Euler(-90, 0, 0));
 
         // 죽는 오브젝트 Disable
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1f);
         _dead.SetActive(false);
 
         // Player Dead Effect 생성 및 3초 뒤 제거
