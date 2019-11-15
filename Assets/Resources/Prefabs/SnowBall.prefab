@@ -123,9 +123,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d293076f2fda5840a65442851eb46f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BallSpeed: 25
+  BallSpeed: 20
   BallForce: 5
   AttackLimitTime: 3
+  Models: {fileID: 0}
 --- !u!114 &1014276590268465241
 MonoBehaviour:
   m_ObjectHideFlags: 0
