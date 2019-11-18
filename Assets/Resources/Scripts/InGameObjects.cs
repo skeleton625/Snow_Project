@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class InGameObjects : MonoBehaviour
+public class InGameObjects : MonoBehaviour, IPunObservable
 {
     // 플레이어 오브젝트 관련 객체들
     [SerializeField]
@@ -26,42 +26,48 @@ public class InGameObjects : MonoBehaviour
     [SerializeField]
     private Vector3 BallGenPos;
     public PhotonView MasterPv;
+    private int BallCount = 6;
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-        BallArray = new GameObject[4, EachBallCount];
-        MasterPv = GetComponent<PhotonView>();
-        GenAttackSnowBall(EachBallCount);
-    }
-
-    private void GenAttackSnowBall(int _cnt)
-    {
-        int _ballNum = 6;
         BallCylinder = new Queue<int>[4];
-        EffectCylinder = new Queue<GameObject>();
         for (int i = 0; i < 4; i++)
             BallCylinder[i] = new Queue<int>();
 
-        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
-        {
-            for (int j = 0; j < _cnt; j++)
-            {
-                // 필요한 공 및 효과 오브젝트 생성
-                GameObject _ball = Instantiate(SnowBall, BallGenPos, Quaternion.identity);
-                GameObject _effect = Instantiate(AttackEffect, BallGenPos, Quaternion.identity);
-                _ball.name = i + "_" + j;
-                _ball.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[i]);
-                _ball.GetComponent<PhotonView>().ViewID = _ballNum++;
-                _ball.GetComponent<BallController>().BallControllerInit(this);
+        BallArray = new GameObject[4, EachBallCount];
+        MasterPv = GetComponent<PhotonView>();
+    }
 
-                // 비활성화 상태로 Queue에 추가
-                _ball.SetActive(false);
-                _effect.SetActive(false);
-                BallArray[i, j] = _ball;
-                BallCylinder[i].Enqueue(j);
-                EffectCylinder.Enqueue(_effect);
-            }
+    public void GenAttackEffect(int _num)
+    {
+        EffectCylinder = new Queue<GameObject>();
+        for (int j = 0; j < EachBallCount; j++)
+        {
+            // 필요한 효과 오브젝트 생성
+            GameObject _effect = Instantiate(AttackEffect, BallGenPos, Quaternion.identity);
+
+            // 비활성화 상태로 Queue에 추가
+            _effect.SetActive(false);
+            EffectCylinder.Enqueue(_effect);
+        }
+    }
+
+    public void GenAttackSnowBall(int _num)
+    {
+        for (int j = 0; j < EachBallCount; j++)
+        {
+            // 필요한 공 오브젝트 생성
+            GameObject _ball = Instantiate(SnowBall, BallGenPos, Quaternion.identity);
+            _ball.name = _num + "_" + j;
+            _ball.GetComponent<BallController>().BallControllerInit(this);
+            _ball.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[_num]);
+            _ball.GetComponent<PhotonView>().ViewID = BallCount;
+            ++BallCount;
+
+            // 비활성화 상태로 Queue에 추가
+            _ball.SetActive(false);
+            BallArray[_num, j] = _ball;
+            BallCylinder[_num].Enqueue(j);
         }
     }
 
@@ -105,6 +111,7 @@ public class InGameObjects : MonoBehaviour
     {
         StartCoroutine(ActiveAttackEffect(pos, rot));
     }
+
     private IEnumerator ActiveAttackEffect(Vector3 pos, Vector3 rot)
     {
         // 공 충돌 효과 생성
@@ -120,5 +127,10 @@ public class InGameObjects : MonoBehaviour
         _effect.SetActive(false);
         _effect.transform.position = BallGenPos;
         EffectCylinder.Enqueue(_effect);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+
     }
 }
