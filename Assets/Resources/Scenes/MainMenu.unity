@@ -2189,7 +2189,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &899851986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2522,9 +2522,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   GameVersion: 0.5
   PlayerNumbers: 4
-  IsLobbyConnected: 0
   IsLobbyUpdate: 0
-  IsRoomConnected: 0
   IsRoomUpdate: 0
 --- !u!4 &947939386
 Transform:
