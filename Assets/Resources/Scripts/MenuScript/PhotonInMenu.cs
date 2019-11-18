@@ -121,11 +121,6 @@ public class PhotonInMenu : MonoBehaviourPunCallbacks
         return PhotonNetwork.IsMasterClient;
     }
 
-    public void setNickNameNumbering(int _num)
-    {
-        PhotonNetwork.NickName += '_' + _num;
-    }
-
     public bool IsLobby()
     {
         return PhotonNetwork.InLobby;

@@ -158,7 +158,7 @@ public class MenuManager : MonoBehaviour
         {
             if (PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
             {
-                PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + '_' + i;
+                PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + "_" + i;
                 PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, PlayerReady);
                 PlayerNumber = i;
                 
