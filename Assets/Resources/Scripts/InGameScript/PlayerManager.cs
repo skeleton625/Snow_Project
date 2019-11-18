@@ -6,25 +6,28 @@ using Photon.Realtime;
 public class PlayerManager : MonoBehaviourPunCallbacks
 {
     [SerializeField]
-    private InGameObjects Models;
-    [SerializeField]
     private string PlayerDeadEffectPos;
     [SerializeField]
-    private int PlayerNumbers;
-    [SerializeField]
     private Camera MainCamera;
+    [SerializeField]
+    private InGameObjects Models;
     [SerializeField]
     private float[] PlayerAttackDamage;
 
     private int masterPlayerNum;
     public int MasterPlayerNum
         { get{ return masterPlayerNum; } }
-    private bool IsDead;
 
     void Start()
     {
         masterPlayerNum = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
-        StartCoroutine(CreatePlayer());
+
+        for(int i = PhotonNetwork.PlayerList.Length; i < 4; i++)
+        {
+            GameObject _player = Models.GetPlayerModels(i);
+            _player.SetActive(false);
+        }
+        CreateAllPlayer();
     }
 
     public void PlayerDead(int _playerNum)
@@ -35,11 +38,10 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         {
             MainCamera.transform.parent = null;
             StartCoroutine(MainCamera.GetComponent<MasterUIManager>().ActivateDeadScene(5));
-            IsDead = true;
         }
-
         StartCoroutine(PlayerDeadMotion(_playerNum, _player.transform.position,
                                         _player.transform.localEulerAngles));
+        StartCoroutine(CreatePlayer(_playerNum, 5f));
         _player.SetActive(false);
     }
 
@@ -63,8 +65,9 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         GameObject _deadEffect =
             Instantiate(Resources.Load(PlayerDeadEffectPos) as GameObject, _deadPos, Quaternion.Euler(-90, 0, 0));
 
-        // 죽는 오브젝트 Disable
+        // 죽는 오브젝트 1초 후에 원래 각도로 변경한 뒤, 비활성화 함
         yield return new WaitForSeconds(1f);
+        _dead.transform.rotation = Quaternion.identity;
         _dead.SetActive(false);
 
         // Player Dead Effect 생성 및 3초 뒤 제거
@@ -72,33 +75,50 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         yield return null;
     }
 
-    private IEnumerator CreatePlayer()
+    private void CreateAllPlayer()
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
         {
             GameObject _player = Models.GetPlayerModels(i);
-            if(i >= PhotonNetwork.PlayerList.Length)
-            {
-                _player.SetActive(false);
-                continue;
-            }
 
-            if (i == masterPlayerNum)
-            {
-                _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
-                GetComponent<InGameObjects>().MasterPv = _player.GetComponent<PhotonView>();
-            }
+            if (PhotonNetwork.PlayerList.Length == i)
+                break;
 
             _player.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[i]);
-            _player.GetComponent<PlayerAttribute>().PlayerNumber = i;
+            _player.GetComponent<PlayerAttribute>().PlayerName = 
+                PhotonNetwork.PlayerList[i].NickName.Split('_')[0];
+            if (i == masterPlayerNum)
+                _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
+
+            GetComponent<InGameObjects>().GenAttackSnowBall(i);
+            GetComponent<InGameObjects>().GenAttackEffect(i);
             _player.GetComponent<PlayerController>().enabled = true;
             _player.GetComponent<AttackController>().enabled = true;
             _player.GetComponent<PlayerAttribute>().enabled = true;
             _player.GetComponent<UIController>().enabled = true;
-
-            yield return null;
         }
-        yield return null;
+    }
+
+    private IEnumerator CreatePlayer(int _num, float _cnt)
+    {
+        GameObject _player = Models.GetPlayerModels(_num);
+        _player.GetComponent<PlayerController>().enabled = false;
+        _player.GetComponent<AttackController>().enabled = false;
+        _player.GetComponent<PlayerAttribute>().enabled = false;
+        _player.GetComponent<UIController>().enabled = false;
+
+        yield return new WaitForSeconds(_cnt);
+        if (_num == masterPlayerNum)
+            _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
+
+        _player.GetComponent<PlayerController>().InitPlayerController();
+        _player.GetComponent<UIController>().InitPlayerHealthBar();
+
+        _player.GetComponent<PlayerController>().enabled = true;
+        _player.GetComponent<AttackController>().enabled = true;
+        _player.GetComponent<PlayerAttribute>().enabled = true;
+        _player.GetComponent<UIController>().enabled = true;
+        _player.SetActive(true);
     }
 
     public float GetPlayerDamage(int _player)
