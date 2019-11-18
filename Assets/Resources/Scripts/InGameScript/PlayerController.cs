@@ -57,26 +57,11 @@ public class PlayerController : MonoBehaviour, IPunObservable
     void Start()
     {
         PlayerPv = GetComponent<PhotonView>();
-        ApplySpeed = WalkSpeed;
-        CurrPos = gameObject.transform.position;
-        RayDist = Mathf.Sqrt(OiriginCameraPos.localPosition.y * OiriginCameraPos.localPosition.y +
-                                OiriginCameraPos.localPosition.z * OiriginCameraPos.localPosition.z);
-
         Character = GetComponent<Rigidbody>();
         CharAnimator = GetComponent<Animator>();
-
-        if (GetComponent<PlayerAttribute>().PlayerNumber % 2 == 1)
-            CurrentRotationY = 180;
-        else
-            CurrentRotationY = 0;
-        transform.Rotate(0, CurrentRotationY, 0);
-
-        if (PlayerPv.IsMine)
-        {
-            PlayerCamera.transform.Rotate(20, CurrentRotationY, 0);
-            PlayerCamera.transform.parent = gameObject.transform;
-        }
-            
+        RayDist = Mathf.Sqrt(OiriginCameraPos.localPosition.y * OiriginCameraPos.localPosition.y +
+                                OiriginCameraPos.localPosition.z * OiriginCameraPos.localPosition.z);
+        InitPlayerController();
     }
 
     // 물리적인 이동을 담당하는 Update 함수
@@ -100,23 +85,21 @@ public class PlayerController : MonoBehaviour, IPunObservable
         CharAnimator.SetFloat("SideWalk", SideWalk);
     }
 
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    public void InitPlayerController()
     {
-        if (stream.IsWriting)
-        {
-            stream.SendNext(transform.position);
-            stream.SendNext(transform.rotation);
-            stream.SendNext(IsRun);
-            stream.SendNext(IsWalk);
-            stream.SendNext(SideWalk);
-        }
+        ApplySpeed = WalkSpeed;
+        CurrPos = gameObject.transform.position;
+
+        if (GetComponent<PlayerAttribute>().PlayerNumber % 2 == 1)
+            CurrentRotationY = 180;
         else
+            CurrentRotationY = 0;
+        transform.rotation = Quaternion.Euler(0, CurrentRotationY, 0);
+
+        if (PlayerPv.IsMine)
         {
-            CurrPos = (Vector3)stream.ReceiveNext();
-            CurrRot = (Quaternion)stream.ReceiveNext();
-            IsRun = (bool)stream.ReceiveNext();
-            IsWalk = (bool)stream.ReceiveNext();
-            SideWalk = (float)stream.ReceiveNext();
+            PlayerCamera.transform.rotation = Quaternion.Euler(20, CurrentRotationY, 0);
+            PlayerCamera.transform.parent = gameObject.transform;
         }
     }
 
@@ -230,6 +213,26 @@ public class PlayerController : MonoBehaviour, IPunObservable
             }
 
             PlayerCamera.transform.localPosition = OiriginCameraPos.localPosition;
+        }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(transform.position);
+            stream.SendNext(transform.rotation);
+            stream.SendNext(IsRun);
+            stream.SendNext(IsWalk);
+            stream.SendNext(SideWalk);
+        }
+        else
+        {
+            CurrPos = (Vector3)stream.ReceiveNext();
+            CurrRot = (Quaternion)stream.ReceiveNext();
+            IsRun = (bool)stream.ReceiveNext();
+            IsWalk = (bool)stream.ReceiveNext();
+            SideWalk = (float)stream.ReceiveNext();
         }
     }
 }
