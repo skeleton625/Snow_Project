@@ -1,45 +1,56 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using Photon.Pun;
 
 public class UIController : MonoBehaviour
 {
     [SerializeField]
     private float ActivateFullTime;
     [SerializeField]
+    private Slider HealthBar;
+    [SerializeField]
+    private Text NickNameBar;
+    [SerializeField]
     private GameObject HealthUI;
     [SerializeField]
     private PlayerAttribute PlayerAtt;
 
     private bool IsActivate;
-    private Slider HealthBar;
-    private float PrePlayerHealth;
     private float ActivateTime;
-
+    private float PrePlayerHealth;
+    private Transform CameraPos;
+    private PhotonView PlayerPv;
 
     void Start()
     {
-        HealthBar = HealthUI.GetComponent<Slider>();    
+        PlayerPv = GetComponent<PhotonView>();
+        CameraPos = GameObject.Find("MainCamera").transform;
+        if (PlayerPv.IsMine)
+            HealthBar = GameObject.Find("CharacterUI/MainHealthBar").GetComponent<Slider>();
+        InitPlayerHealthBar();
+        NickNameBar.text = PlayerAtt.PlayerName;
     }
 
-    public UIController(GameObject _player, GameObject _healthUI)
+    void Update()
     {
-        HealthUI = _healthUI;
-        PlayerAtt = _player.GetComponent<PlayerAttribute>();
-        HealthBar = _healthUI.GetComponent<Slider>();
+        if(!PlayerPv.IsMine)
+            HealthUI.transform.rotation = CameraPos.rotation;
+    }
 
-        PrePlayerHealth = PlayerAtt.PlayerHealth;
-        HealthBar.value = PrePlayerHealth / PlayerAtt.PlayerHealthMax;
+    public void InitPlayerHealthBar()
+    {
+        PlayerAtt.PlayerHealth = -PlayerAtt.PlayerHealthMax;
+        HealthBar.value = 1;
+        IsActivate = false;
+        HealthUI.SetActive(false);
     }
 
     public void SetPlayerHealthBar()
     {
-        if(PlayerAtt.PlayerHealth != PrePlayerHealth)
-        {
-            PrePlayerHealth = PlayerAtt.PlayerHealth;
-            HealthBar.value = PrePlayerHealth / PlayerAtt.PlayerHealthMax;
-        }
+        HealthBar.value = PlayerAtt.PlayerHealth / PlayerAtt.PlayerHealthMax;
     }
+
     public void VisibleHealthBar()
     {
         ActivateTime = 0;
