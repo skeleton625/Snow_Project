@@ -37,8 +37,9 @@ public class BallController : MonoBehaviour
             yield return null;
         }
 
+        string[] _nums = gameObject.name.Split('_');
         // 제한 시간이 다되면 움직임을 종료하고 탄창에 추가
-        PlayerPv.RPC("SendSetSnowBall", RpcTarget.All, gameObject.name.Split('_'));
+        Models.SetSnowBall(int.Parse(_nums[0]), int.Parse(_nums[1]));
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -51,13 +52,9 @@ public class BallController : MonoBehaviour
         Vector3 conflictPos = collision.contacts[0].point;
         Vector3 conflictRot = collision.contacts[0].normal;
         PlayerPv.RPC("SendGetAttackEffect", RpcTarget.All, conflictPos, conflictRot);
-        // 충돌된 공에 대해 다시 BallCylinder에 입력
-        PlayerPv.RPC("SendSetSnowBall", RpcTarget.All, gameObject.name.Split('_'));
-    }
 
-    [PunRPC]
-    private void SendSetSnowBall(string[] _nums)
-    {
+        // 충돌된 공에 대해 다시 BallCylinder에 입력
+        string[] _nums = gameObject.name.Split('_');
         Models.SetSnowBall(int.Parse(_nums[0]), int.Parse(_nums[1]));
     }
 
