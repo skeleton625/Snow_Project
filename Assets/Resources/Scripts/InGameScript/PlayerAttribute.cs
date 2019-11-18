@@ -31,15 +31,12 @@ public class PlayerAttribute : MonoBehaviour
     public float PlayerHealth
     {
         get { return playerHealth; }
-        set
-        {
-            if(playerHealth > 0)
-                playerHealth -= value;
-        }
+        set { playerHealth -= value; }
     }
-
-    void Start()
+    private string playerName;
+    public string PlayerName
     {
-        playerHealth = playerHealthMax;    
+        get { return playerName; }
+        set { playerName = value; }
     }
 }
