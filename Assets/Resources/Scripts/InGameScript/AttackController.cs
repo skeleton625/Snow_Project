@@ -70,7 +70,6 @@ public class AttackController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        
         // 같은 눈덩이 오브젝트의 경우 무시
         if (collision.gameObject.tag == "SnowBall")
         {
