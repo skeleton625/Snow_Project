@@ -12,11 +12,8 @@ public class MasterUIManager : MonoBehaviour
     private GameObject CountText;
     [SerializeField]
     private GameObject ResumeScene;
-    [SerializeField]
-    private GameObject HealthBar;
 
-    private UIController MasterUI;
-    private bool isMouseVisible;
+    private bool isMouseVisible = true;
     public bool IsMouseVisible
         { get { return isMouseVisible; } }
 
@@ -25,20 +22,17 @@ public class MasterUIManager : MonoBehaviour
         InGameObjects staticObject = 
             GameObject.Find("StaticObjects").GetComponent<InGameObjects>();
         GameObject model = staticObject.GetPlayerModels(StaticObjects.MasterPlayerNumber);
-        MasterUI = new UIController(model, HealthBar);
+        StartCoroutine(ActivateCountScene(3, model));
 
-        isMouseVisible = false;
+        // 마우스 초기화
         Cursor.visible = isMouseVisible;
         Cursor.lockState = CursorLockMode.Locked;
-        StartCoroutine(ActivateCountScene(3, model));
-        GameObject _player = GameObject.Find(StaticObjects.MasterPlayerNumber + "");
     }
 
     // Update is called once per frame
     void Update()
     {
         MouseLockInScene();
-        MasterUI.SetPlayerHealthBar();
     }
 
     private void MouseLockInScene()
@@ -74,8 +68,6 @@ public class MasterUIManager : MonoBehaviour
 
     private IEnumerator ActivateCountScene(float _cnt, GameObject _model)
     {
-        _model.GetComponent<PlayerController>().enabled = false;
-        _model.GetComponent<AttackController>().enabled = false;
         while (_cnt > 0)
         {
             CountText.GetComponent<Text>().text = _cnt + "";
@@ -83,8 +75,7 @@ public class MasterUIManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
             --_cnt;
         }
-        _model.GetComponent<PlayerController>().enabled = true;
-        _model.GetComponent<AttackController>().enabled = true;
+        isMouseVisible = false;
         CountScene.SetActive(false);
     }
 }
