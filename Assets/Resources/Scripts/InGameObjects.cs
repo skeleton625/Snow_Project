@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class InGameObjects : MonoBehaviour, IPunObservable
+public class InGameObjects : MonoBehaviour
 {
     // 플레이어 오브젝트 관련 객체들
     [SerializeField]
@@ -12,30 +12,38 @@ public class InGameObjects : MonoBehaviour, IPunObservable
     private GameObject[] Players;
     [SerializeField]
     private GameObject[] PlayerDeads;
+    // 플레이어 죽음 효과 오브젝트
+    [SerializeField]
+    private string PlayerDeadEffectPos;
 
-    // 눈덩이 오브젝트 관련 객체들
+    // 눈덩이 오브젝트 객체들
     [SerializeField]
     private GameObject SnowBall;
-    [SerializeField]
-    private GameObject AttackEffect;
-    [SerializeField]
-    private int EachBallCount;
     private GameObject[,] BallArray;
     private Queue<int>[] BallCylinder;
+
+    // 눈덩이 효과 오브젝트 객체들
+    [SerializeField]
+    private GameObject AttackEffect;
     private Queue<GameObject> EffectCylinder;
+
+    // 각 플레이어당 할당된 눈덩이 개수
+    [SerializeField]
+    private int EachBallCount;
+
+    // 눈덩이 위치 함수
     [SerializeField]
     private Vector3 BallGenPos;
-    public PhotonView MasterPv;
+
+    // 눈덩이 ViewID 번호
     private int BallCount = 6;
 
     void Awake()
     {
+        BallArray = new GameObject[4, EachBallCount];
         BallCylinder = new Queue<int>[4];
         for (int i = 0; i < 4; i++)
             BallCylinder[i] = new Queue<int>();
-
-        BallArray = new GameObject[4, EachBallCount];
-        MasterPv = GetComponent<PhotonView>();
     }
 
     public void GenAttackEffect(int _num)
@@ -59,7 +67,7 @@ public class InGameObjects : MonoBehaviour, IPunObservable
             // 필요한 공 오브젝트 생성
             GameObject _ball = Instantiate(SnowBall, BallGenPos, Quaternion.identity);
             _ball.name = _num + "_" + j;
-            _ball.GetComponent<BallController>().BallControllerInit(this);
+            _ball.GetComponent<BallController>().BallControllerInit(_num, j, this);
             _ball.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[_num]);
             _ball.GetComponent<PhotonView>().ViewID = BallCount;
             ++BallCount;
@@ -82,9 +90,31 @@ public class InGameObjects : MonoBehaviour, IPunObservable
         return Players[_num];
     }
 
-    public GameObject GetPlayerDeads(int _num)
+    public IEnumerator PlayerDeadMotion(int _num, Vector3 _deadPos, Vector3 _deadRot)
     {
-        return PlayerDeads[_num];
+        PlayerDeads[_num].transform.position = _deadPos;
+        PlayerDeads[_num].transform.rotation = Quaternion.Euler(_deadRot);
+        PlayerDeads[_num].SetActive(true);
+        // 죽음 이펙트 표현
+        GameObject _deadEffect =
+            Instantiate(Resources.Load(PlayerDeadEffectPos) as GameObject, 
+                                    _deadPos, Quaternion.Euler(-90, 0, 0));
+        // Player Dead Effect 생성 및 3초 뒤 제거
+        Destroy(_deadEffect, 3f);
+
+        float _rot = 0;
+        while(_rot < -90f)
+        {
+            _rot = Mathf.Lerp(_rot, -91f, 0.1f);
+            PlayerDeads[_num].transform.localEulerAngles = new Vector3(_rot, _deadRot.y, 0);
+            yield return null;
+        }
+
+        // 죽는 오브젝트 1초 후에 원래 각도로 변경한 뒤, 비활성화 함
+        yield return new WaitForSeconds(0.5f);
+        PlayerDeads[_num].transform.position = new Vector3(-6, 0, -6);
+        PlayerDeads[_num].transform.rotation = Quaternion.identity;
+        PlayerDeads[_num].SetActive(false);
     }
 
     // 눈덩이 관련 함수들
@@ -101,8 +131,8 @@ public class InGameObjects : MonoBehaviour, IPunObservable
         GameObject _ball = BallArray[_player, _num];
         // 공 이동 코루틴 종료
         StopCoroutine(_ball.GetComponent<BallController>().ThrowingBall());
-        _ball.SetActive(false);
         _ball.transform.position = BallGenPos;
+        _ball.SetActive(false);
 
         BallCylinder[_player].Enqueue(_num);
     }
@@ -127,10 +157,5 @@ public class InGameObjects : MonoBehaviour, IPunObservable
         _effect.SetActive(false);
         _effect.transform.position = BallGenPos;
         EffectCylinder.Enqueue(_effect);
-    }
-
-    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
-    {
-
     }
 }
