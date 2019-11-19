@@ -97,6 +97,6 @@ public class AttackController : MonoBehaviour
 
         // 공격 당한 플레이어의 체력이 0보다 작을 경우, 해당 플레이어 사망
         if (AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth <= 0)
-            PManager.PlayerDead(_player);
+            PManager.PlayerDead(_player, _attackPlayer);
     }
 }
