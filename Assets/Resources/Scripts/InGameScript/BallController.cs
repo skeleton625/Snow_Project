@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class BallController : MonoBehaviour
+public class BallController : MonoBehaviour, IPunObservable
 {
     // 공의 속성 변수
     [SerializeField]
@@ -18,10 +18,14 @@ public class BallController : MonoBehaviour
     [SerializeField]
     private InGameObjects Models;
     private PhotonView PlayerPv;
+    private int MasterPlayerNum;
+    private int BallNumber;
 
-    public void BallControllerInit(InGameObjects _models)
+    public void BallControllerInit(int _player, int _num, InGameObjects _models)
     {
         Models = _models;
+        BallNumber = _num;
+        MasterPlayerNum = _player;
         PlayerPv = GetComponent<PhotonView>();
     }
 
@@ -30,16 +34,13 @@ public class BallController : MonoBehaviour
     {
         // 제한된 시간 동안 공이 이동하도록 구현
         float _time = 0;
-        while (_time < AttackLimitTime)
-        {
-            transform.Translate(Vector3.forward * BallSpeed * Time.deltaTime);
-            _time += Time.deltaTime;
-            yield return null;
-        }
+        GetComponent<Rigidbody>().velocity = 
+            gameObject.transform.forward * BallSpeed *Time.deltaTime;
+        yield return new WaitForSeconds(AttackLimitTime);
 
-        string[] _nums = gameObject.name.Split('_');
-        // 제한 시간이 다되면 움직임을 종료하고 탄창에 추가
-        Models.SetSnowBall(int.Parse(_nums[0]), int.Parse(_nums[1]));
+        // 제한된 시간 뒤에 공의 이동을 종료하고 BallCylinder에 추가
+        GetComponent<Rigidbody>().velocity = Vector3.zero;
+        Models.SetSnowBall(MasterPlayerNum, BallNumber);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -52,10 +53,8 @@ public class BallController : MonoBehaviour
         Vector3 conflictPos = collision.contacts[0].point;
         Vector3 conflictRot = collision.contacts[0].normal;
         PlayerPv.RPC("SendGetAttackEffect", RpcTarget.All, conflictPos, conflictRot);
-
         // 충돌된 공에 대해 다시 BallCylinder에 입력
-        string[] _nums = gameObject.name.Split('_');
-        Models.SetSnowBall(int.Parse(_nums[0]), int.Parse(_nums[1]));
+        Models.SetSnowBall(MasterPlayerNum, BallNumber);
     }
 
     [PunRPC]
@@ -63,4 +62,6 @@ public class BallController : MonoBehaviour
     {
         Models.GetAttackEffect(pos, rot);
     }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) { }
 }
