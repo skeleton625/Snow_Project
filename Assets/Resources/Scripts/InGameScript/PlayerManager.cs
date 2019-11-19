@@ -3,16 +3,24 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class PlayerManager : MonoBehaviourPunCallbacks
+public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
 {
-    [SerializeField]
-    private string PlayerDeadEffectPos;
+    // GameScene 내의 메인 카메라 객체
     [SerializeField]
     private Camera MainCamera;
+    // GameScene 내 모든 오브젝트 관리 객체
     [SerializeField]
     private InGameObjects Models;
+    // GameScene 내 각 플레이어의 피해 값 변수
     [SerializeField]
     private float[] PlayerAttackDamage;
+    // 플레이어 숫자 변수
+    [SerializeField]
+    private int PlayerNumbers;
+    
+    // KillBlock UI 객체
+    [SerializeField]
+    private GameObject[] KillingList;
 
     private int masterPlayerNum;
     public int MasterPlayerNum
@@ -20,73 +28,57 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     void Start()
     {
+        // 현재 클라이언트의 플레이어 번호를 정의
         masterPlayerNum = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
-
-        for(int i = PhotonNetwork.PlayerList.Length; i < 4; i++)
-        {
-            GameObject _player = Models.GetPlayerModels(i);
-            _player.SetActive(false);
-        }
+            
         CreateAllPlayer();
     }
 
-    public void PlayerDead(int _playerNum)
+    public void PlayerDead(int _num, int _attackNum)
     {
-        GameObject _player = Models.GetPlayerModels(_playerNum);
+        // 죽는 플레이어 오브젝트를 가져옴
+        GameObject _player = Models.GetPlayerModels(_num);
 
-        if (_player.name == masterPlayerNum + "")
+        // 죽는 플레이어가 클라이언트의 플레이어일 경우
+        if (_num == masterPlayerNum)
         {
             MainCamera.transform.parent = null;
             StartCoroutine(MainCamera.GetComponent<MasterUIManager>().ActivateDeadScene(5));
         }
-        StartCoroutine(PlayerDeadMotion(_playerNum, _player.transform.position,
-                                        _player.transform.localEulerAngles));
-        StartCoroutine(CreatePlayer(_playerNum, 5f));
+
+        string _playerName = PhotonNetwork.PlayerList[_num].NickName;
+        string _attackPlayerName = PhotonNetwork.PlayerList[_attackNum].NickName;
+        SettingKillingBlocks(_playerName, _attackPlayerName);
+        PlayerDeadCoroutine(_num, _player.transform.position, _player.transform.localEulerAngles, 5);
         _player.SetActive(false);
     }
 
-    private IEnumerator PlayerDeadMotion(int _playerNum, Vector3 _deadPos, Vector3 _deadRot)
+    private void PlayerDeadCoroutine(int _playerNum, Vector3 _deadPos, Vector3 _deadRot, float _timer)
     {
-        GameObject _dead = Models.GetPlayerDeads(_playerNum);
-        // 죽은 위치에서 죽는 오브젝트 Enable
-        _dead.transform.position = _deadPos;
-        _dead.transform.rotation = Quaternion.Euler(_deadRot);
-        _dead.SetActive(true);
-
-        // Dead Model을 죽는 것 처럼 표현 -> Animation으로 대체가 필요함
-        float _xRot = 0;
-        while (_xRot > -90)
-        {
-            _xRot = Mathf.Lerp(_xRot, -91, 0.1f);
-            _dead.transform.localEulerAngles = new Vector3(_xRot, _deadRot.y, 0);
-            yield return null;
-        }
-        // 죽음 이펙트 표현
-        GameObject _deadEffect =
-            Instantiate(Resources.Load(PlayerDeadEffectPos) as GameObject, _deadPos, Quaternion.Euler(-90, 0, 0));
-
-        // 죽는 오브젝트 1초 후에 원래 각도로 변경한 뒤, 비활성화 함
-        yield return new WaitForSeconds(1f);
-        _dead.transform.rotation = Quaternion.identity;
-        _dead.SetActive(false);
-
-        // Player Dead Effect 생성 및 3초 뒤 제거
-        Destroy(_deadEffect, 3f);
-        yield return null;
+        // 번호에 해당하는 플레이어 죽음 모션 시작
+        StartCoroutine(Models.PlayerDeadMotion(_playerNum, _deadPos, _deadRot));
+        // 5초가 지난 뒤, 해당 플레이어 생성
+        StartCoroutine(CreatePlayer(_playerNum, _timer));
     }
 
     private void CreateAllPlayer()
     {
-        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+        int _playerNums = PhotonNetwork.PlayerList.Length;
+        // 모든 플레이어에 대해 설정 시작
+        for (int i = 0; i < PlayerNumbers; i++)
         {
+            // 남은 플레이어 모델의 경우 비활성화
+            if(i >= _playerNums)
+            {
+                Models.GetPlayerModels(i).SetActive(false);
+                continue;
+            }
+               
+            // 존재하는 플레이어의 모델을 초기화
             GameObject _player = Models.GetPlayerModels(i);
-
-            if (PhotonNetwork.PlayerList.Length == i)
-                break;
-
             _player.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[i]);
             _player.GetComponent<PlayerAttribute>().PlayerName = 
-                PhotonNetwork.PlayerList[i].NickName.Split('_')[0];
+                                           PhotonNetwork.PlayerList[i].NickName.Split('_')[0];
             if (i == masterPlayerNum)
                 _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
 
@@ -137,9 +129,42 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         Models.GetPlayerModels(_num).SetActive(false);
     }
 
+    private void SettingKillingBlocks(string _player, string _attackPlayer)
+    {
+        for(int i = 0; i < KillingList.Length; i++)
+        {
+            if (!KillingList[i].activeSelf)
+            {
+                GetComponent<PhotonView>().RPC("ActivateKillingBlocks", RpcTarget.All,
+                                                            i, _player, _attackPlayer);
+                break;
+            }
+                
+        }
+    }
+
+    [PunRPC]
+    private void ActivateKillingBlocks(int _num, string _player, string _attackPlayer)
+    {
+        StartCoroutine(KillingBlockCoroutine(_num, _player, _attackPlayer));
+    }
+
+    private IEnumerator KillingBlockCoroutine(int _num, string _player, string _attackPlayer)
+    {
+        KillingList[_num].GetComponent<KillBlock>().SetPlayerNames(_player, _attackPlayer);
+        KillingList[_num].SetActive(true);
+
+        yield return new WaitForSeconds(5f);
+
+        KillingList[_num].SetActive(false);
+    }
+
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        GetComponent<PhotonView>().RPC("PlayerDeactive", RpcTarget.All, int.Parse(otherPlayer.NickName.Split('_')[1]));
+        GetComponent<PhotonView>().RPC("PlayerDeactive", RpcTarget.All, 
+                            int.Parse(otherPlayer.NickName.Split('_')[1]));
         base.OnPlayerLeftRoom(otherPlayer);
     }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info) { }
 }
