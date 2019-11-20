@@ -10,6 +10,10 @@ public class MenuManager : MonoBehaviour
 {
     [SerializeField]
     private GameObject[] UI;
+    [SerializeField]
+    private GameObject UserNameInput;
+    [SerializeField]
+    private Text UserNameText;
 
     private bool PlayerReady;
     private bool[] IsReady;
@@ -25,6 +29,7 @@ public class MenuManager : MonoBehaviour
         IsReady = new bool[4];
         PV = GetComponent<PhotonView>();
         PhotonNet = GetComponent<PhotonInMenu>();
+        UserNameText.text = PhotonNetwork.NickName.Split('_')[0];
         if (PhotonNet.LeaveRoom())
             setMenuActive(1, null);
     }
@@ -39,9 +44,11 @@ public class MenuManager : MonoBehaviour
 
     public void setPlayerName()
     {
-        string _name = GameObject.Find("UserName/InputField").GetComponent<InputField>().text;
+        string _name = UserNameInput.GetComponent<InputField>().text;
         if (_name == "")
             _name = "NoName";
+
+        UserNameText.text = _name;
         PhotonNet.OnLogin(_name);
     }
 
@@ -65,6 +72,8 @@ public class MenuManager : MonoBehaviour
     public void CreateRoomByMaster()
     {
         string _roomName = GameObject.Find("RoomName/InputField").GetComponent<InputField>().text;
+        StaticObjects.GamePlayTime = int.Parse(GameObject.Find("PlayTime/InputField")
+                                                                .GetComponent<InputField>().text);
         if (!PhotonNet.CreateRoom(_roomName))
         {
             GeneratePopup(1, "This Room name is already Exist");
@@ -100,7 +109,7 @@ public class MenuManager : MonoBehaviour
                 GeneratePopup(3, "Someone don't press Ready Button");
             else
             {
-                PV.RPC("PlayerStartGame", RpcTarget.All);
+                PV.RPC("PlayerStartGame", RpcTarget.All, StaticObjects.GamePlayTime);
                 PhotonNetwork.CurrentRoom.IsOpen = false;
             }
         }
@@ -245,9 +254,10 @@ public class MenuManager : MonoBehaviour
     }
 
     [PunRPC]
-    public void PlayerStartGame()
+    public void PlayerStartGame(int _timer)
     {
         StaticObjects.MasterPlayerNumber = PlayerNumber;
+        StaticObjects.GamePlayTime = _timer;
         SceneManager.LoadScene("GameScene");
     }
 
