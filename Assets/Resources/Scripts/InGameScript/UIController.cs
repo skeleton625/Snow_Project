@@ -24,12 +24,12 @@ public class UIController : MonoBehaviour
 
     void Start()
     {
+        NickNameBar.text = PlayerAtt.PlayerName;
         PlayerPv = GetComponent<PhotonView>();
         CameraPos = GameObject.Find("MainCamera").transform;
         if (PlayerPv.IsMine)
             HealthBar = GameObject.Find("CharacterUI/MainHealthBar").GetComponent<Slider>();
         InitPlayerHealthBar();
-        NickNameBar.text = PlayerAtt.PlayerName;
     }
 
     void Update()
