@@ -15,4 +15,10 @@ public static class StaticObjects
         get { return isGameStart; }
         set { isGameStart = value; }
     }
+    private static int gamePlayTime = 60;
+    public static int GamePlayTime
+    {
+        get { return gamePlayTime; }
+        set { gamePlayTime = value; }
+    }
 }
