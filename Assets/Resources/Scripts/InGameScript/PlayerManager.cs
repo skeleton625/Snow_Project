@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
@@ -8,6 +9,9 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     // GameScene 내의 메인 카메라 객체
     [SerializeField]
     private Camera MainCamera;
+    // 전역 PhotonView 객체
+    [SerializeField]
+    private PhotonView StaticPv;
     // GameScene 내 모든 오브젝트 관리 객체
     [SerializeField]
     private InGameObjects Models;
@@ -17,40 +21,35 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     // 플레이어 숫자 변수
     [SerializeField]
     private int PlayerNumbers;
-    
+
     // KillBlock UI 객체
     [SerializeField]
     private GameObject[] KillingList;
+    // 모든 플레이어의 킬, 죽은 횟수
+    private Dictionary<string, int> KillDict;
 
+    // 모든 플레이어 준비 파악 변수
+    private bool[] PlayerReady;
+    // 클라이언트 플레이어 번호 변수
     private int masterPlayerNum;
     public int MasterPlayerNum
         { get{ return masterPlayerNum; } }
 
+
+    void Awake()
+    {
+        // 현재 클라이언트의 플레이어
+        masterPlayerNum = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
+        // 각 플레이어 준비 변수 초기화
+        PlayerReady = new bool[PlayerNumbers];
+        KillDict = new Dictionary<string, int>();
+        for(int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            KillDict.Add(PhotonNetwork.PlayerList[i].NickName.Split('_')[0], 0);
+    }
     void Start()
     {
-        // 현재 클라이언트의 플레이어 번호를 정의
-        masterPlayerNum = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
-            
         CreateAllPlayer();
-    }
-
-    public void PlayerDead(int _num, int _attackNum)
-    {
-        // 죽는 플레이어 오브젝트를 가져옴
-        GameObject _player = Models.GetPlayerModels(_num);
-
-        // 죽는 플레이어가 클라이언트의 플레이어일 경우
-        if (_num == masterPlayerNum)
-        {
-            MainCamera.transform.parent = null;
-            StartCoroutine(MainCamera.GetComponent<MasterUIManager>().ActivateDeadScene(5));
-        }
-
-        string _playerName = PhotonNetwork.PlayerList[_num].NickName;
-        string _attackPlayerName = PhotonNetwork.PlayerList[_attackNum].NickName;
-        SettingKillingBlocks(_playerName, _attackPlayerName);
-        PlayerDeadCoroutine(_num, _player.transform.position, _player.transform.localEulerAngles, 5);
-        _player.SetActive(false);
+        StartCoroutine(GamePlayCoroutine());
     }
 
     private void PlayerDeadCoroutine(int _playerNum, Vector3 _deadPos, Vector3 _deadRot, float _timer)
@@ -79,8 +78,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             _player.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[i]);
             _player.GetComponent<PlayerAttribute>().PlayerName = 
                                            PhotonNetwork.PlayerList[i].NickName.Split('_')[0];
-            if (i == masterPlayerNum)
-                _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
 
             GetComponent<InGameObjects>().GenAttackSnowBall(i);
             GetComponent<InGameObjects>().GenAttackEffect(i);
@@ -89,64 +86,19 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             _player.GetComponent<PlayerAttribute>().enabled = true;
             _player.GetComponent<UIController>().enabled = true;
         }
+        StaticPv.RPC("SetPlayerReady", RpcTarget.All, masterPlayerNum);
     }
-
-    private IEnumerator CreatePlayer(int _num, float _cnt)
-    {
-        GameObject _player = Models.GetPlayerModels(_num);
-        _player.GetComponent<PlayerController>().enabled = false;
-        _player.GetComponent<AttackController>().enabled = false;
-        _player.GetComponent<PlayerAttribute>().enabled = false;
-        _player.GetComponent<UIController>().enabled = false;
-
-        yield return new WaitForSeconds(_cnt);
-        if (_num == masterPlayerNum)
-            _player.GetComponent<PlayerController>().PlayerCamera = MainCamera;
-
-        _player.GetComponent<PlayerController>().InitPlayerController();
-        _player.GetComponent<UIController>().InitPlayerHealthBar();
-
-        _player.GetComponent<PlayerController>().enabled = true;
-        _player.GetComponent<AttackController>().enabled = true;
-        _player.GetComponent<PlayerAttribute>().enabled = true;
-        _player.GetComponent<UIController>().enabled = true;
-        _player.SetActive(true);
-    }
-
-    public float GetPlayerDamage(int _player)
-    {
-        return PlayerAttackDamage[_player];
-    }
-
-    public void PlayerOutTheGame(int _num)
-    {
-        GetComponent<PhotonView>().RPC("PlayerDeactive", RpcTarget.All, _num);
-    }
-
-    [PunRPC]
-    private void PlayerDeactive(int _num)
-    {
-        Models.GetPlayerModels(_num).SetActive(false);
-    }
-
     private void SettingKillingBlocks(string _player, string _attackPlayer)
     {
-        for(int i = 0; i < KillingList.Length; i++)
+        for (int i = 0; i < KillingList.Length; i++)
         {
             if (!KillingList[i].activeSelf)
             {
-                GetComponent<PhotonView>().RPC("ActivateKillingBlocks", RpcTarget.All,
+                StaticPv.RPC("ActivateKillingBlocks", RpcTarget.All,
                                                             i, _player, _attackPlayer);
                 break;
             }
-                
         }
-    }
-
-    [PunRPC]
-    private void ActivateKillingBlocks(int _num, string _player, string _attackPlayer)
-    {
-        StartCoroutine(KillingBlockCoroutine(_num, _player, _attackPlayer));
     }
 
     private IEnumerator KillingBlockCoroutine(int _num, string _player, string _attackPlayer)
@@ -159,10 +111,96 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         KillingList[_num].SetActive(false);
     }
 
+    private IEnumerator CreatePlayer(int _num, float _cnt)
+    {
+        GameObject _player = Models.GetPlayerModels(_num);
+        _player.transform.position = Models.GetBeacons(_num).position;
+
+        yield return new WaitForSeconds(_cnt);
+        _player.GetComponent<PlayerController>().InitPlayerController();
+        _player.GetComponent<UIController>().InitPlayerHealthBar();
+        _player.SetActive(true);
+    }
+
+    private IEnumerator GamePlayCoroutine()
+    {
+        // 모든 플레이어가 준비될 때까지 대기
+        int _ready = PhotonNetwork.PlayerList.Length;
+        while (_ready > 0)
+        {
+            if (PlayerReady[_ready - 1])
+                --_ready;
+            yield return null;
+        }
+
+        MasterUIManager MasterUI = MainCamera.GetComponent<MasterUIManager>();
+
+        yield return StartCoroutine(MasterUI.ActivateGameStart(3));
+        yield return StartCoroutine(MasterUI.ClockingGameTimeCoroutine());
+
+        for(int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+        {
+            GameObject _player = Models.GetPlayerModels(i);
+            _player.GetComponent<PlayerController>().enabled = false;
+            _player.GetComponent<AttackController>().enabled = false;
+        }
+
+        yield return new WaitForSeconds(3f);
+    }
+
+    [PunRPC]
+    private void SetPlayerReady(int _num)
+    {
+        PlayerReady[_num] = true;
+    }
+
+    [PunRPC]
+    private void PlayerDeactive(int _num)
+    {
+        Models.GetPlayerModels(_num).SetActive(false);
+    }
+
+    [PunRPC]
+    private void ActivateKillingBlocks(int _num, string _player, string _attackPlayer)
+    {
+        StartCoroutine(KillingBlockCoroutine(_num, _player, _attackPlayer));
+    }
+
+    public void PlayerDead(int _num, int _attackNum)
+    {
+        // 죽는 플레이어 오브젝트를 가져옴
+        GameObject _player = Models.GetPlayerModels(_num);
+
+        // 죽는 플레이어가 클라이언트의 플레이어일 경우
+        if (_num == masterPlayerNum)
+        {
+            MainCamera.transform.parent = null;
+            StartCoroutine(MainCamera.GetComponent<MasterUIManager>().ActivateDeadScene(5));
+        }
+
+        // 플레이어 킬 표시
+        string _playerName = PhotonNetwork.PlayerList[_num].NickName.Split('_')[0];
+        string _attackPlayerName = PhotonNetwork.PlayerList[_attackNum].NickName.Split('_')[0];
+        // 플레이어 킬 및 데드 횟수 측정
+        ++KillDict[_attackPlayerName];
+        SettingKillingBlocks(_playerName, _attackPlayerName);
+        PlayerDeadCoroutine(_num, _player.transform.position, _player.transform.localEulerAngles, 5);
+        _player.SetActive(false);
+    }
+
+    public float GetPlayerDamage(int _player)
+    {
+        return PlayerAttackDamage[_player];
+    }
+
+    public void PlayerOutTheGame(int _num)
+    {
+        StaticPv.RPC("PlayerDeactive", RpcTarget.All, _num);
+    }
+
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        GetComponent<PhotonView>().RPC("PlayerDeactive", RpcTarget.All, 
-                            int.Parse(otherPlayer.NickName.Split('_')[1]));
+        StaticPv.RPC("PlayerDeactive", RpcTarget.All, int.Parse(otherPlayer.NickName.Split('_')[1]));
         base.OnPlayerLeftRoom(otherPlayer);
     }
 
