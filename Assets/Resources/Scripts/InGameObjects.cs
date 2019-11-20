@@ -103,7 +103,7 @@ public class InGameObjects : MonoBehaviour
         Destroy(_deadEffect, 3f);
 
         float _rot = 0;
-        while(_rot < -90f)
+        while(_rot > -90f)
         {
             _rot = Mathf.Lerp(_rot, -91f, 0.1f);
             PlayerDeads[_num].transform.localEulerAngles = new Vector3(_rot, _deadRot.y, 0);
