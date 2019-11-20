@@ -4,9 +4,6 @@ using UnityEngine;
 using Photon.Pun;
 public class PlayerController : MonoBehaviour, IPunObservable
 {
-    // Player Camera 오브젝트
-    public Camera PlayerCamera;
-
     // 카메라의 원래 위치 객체
     [SerializeField]
     private Transform OiriginCameraPos;
@@ -52,10 +49,14 @@ public class PlayerController : MonoBehaviour, IPunObservable
 
     // Player가 현재 클라이언트에서 Master인지 확인
     private PhotonView PlayerPv;
+    // Player Camera 오브젝트
+    private Camera PlayerCamera = null;
 
     // Start is called before the first frame update
     void Start()
     {
+        if (gameObject.name == StaticObjects.MasterPlayerNumber + "")
+            PlayerCamera = GameObject.Find("MainCamera").GetComponent<Camera>();
         PlayerPv = GetComponent<PhotonView>();
         Character = GetComponent<Rigidbody>();
         CharAnimator = GetComponent<Animator>();
@@ -96,8 +97,9 @@ public class PlayerController : MonoBehaviour, IPunObservable
             CurrentRotationY = 0;
         transform.rotation = Quaternion.Euler(0, CurrentRotationY, 0);
 
-        if (PlayerPv.IsMine)
+        if (gameObject.name == StaticObjects.MasterPlayerNumber + "")
         {
+            Debug.Log(PlayerCamera);
             PlayerCamera.transform.rotation = Quaternion.Euler(20, CurrentRotationY, 0);
             PlayerCamera.transform.parent = gameObject.transform;
         }
