@@ -3231,7 +3231,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e0528f1e2a4b0047a41ec5bb7120a6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  PlayerCamera: {fileID: 0}
   OiriginCameraPos: {fileID: 32878747229826395}
   RayPosition: {fileID: 32878747524040393}
   WalkSpeed: 5
@@ -4197,7 +4196,7 @@ MonoBehaviour:
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
   m_FontData:
     m_Font: {fileID: 12800000, guid: 4506bf6ca285b494ab0993e12703d5e6, type: 3}
-    m_FontSize: 15
+    m_FontSize: 12
     m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 0
