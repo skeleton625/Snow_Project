@@ -40,7 +40,7 @@ public class UIController : MonoBehaviour
 
     public void InitPlayerHealthBar()
     {
-        PlayerAtt.PlayerHealth = -PlayerAtt.PlayerHealthMax;
+        PlayerAtt.PlayerHealth = 0;
         HealthBar.value = 1;
         IsActivate = false;
         HealthUI.SetActive(false);
