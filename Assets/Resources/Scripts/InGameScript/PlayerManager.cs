@@ -44,7 +44,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         PlayerReady = new bool[PlayerNumbers];
         KillDict = new Dictionary<string, int>();
         for(int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
-            KillDict.Add(PhotonNetwork.PlayerList[i].NickName.Split('_')[0], 0);
+            KillDict.Add(PhotonNetwork.PlayerList[i].NickName, 0);
     }
     void Start()
     {
@@ -138,14 +138,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         yield return StartCoroutine(MasterUI.ActivateGameStart(3));
         yield return StartCoroutine(MasterUI.ClockingGameTimeCoroutine());
 
-        for(int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+        MasterUI.ViewPlayerKillList(KillDict);
+        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
         {
             GameObject _player = Models.GetPlayerModels(i);
             _player.GetComponent<PlayerController>().enabled = false;
             _player.GetComponent<AttackController>().enabled = false;
         }
-
-        yield return new WaitForSeconds(3f);
     }
 
     [PunRPC]
@@ -177,12 +176,12 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             MainCamera.transform.parent = null;
             StartCoroutine(MainCamera.GetComponent<MasterUIManager>().ActivateDeadScene(5));
         }
+        // 플레이어 킬 및 데드 횟수 측정
+        ++KillDict[PhotonNetwork.PlayerList[_attackNum].NickName];
 
         // 플레이어 킬 표시
         string _playerName = PhotonNetwork.PlayerList[_num].NickName.Split('_')[0];
         string _attackPlayerName = PhotonNetwork.PlayerList[_attackNum].NickName.Split('_')[0];
-        // 플레이어 킬 및 데드 횟수 측정
-        ++KillDict[_attackPlayerName];
         SettingKillingBlocks(_playerName, _attackPlayerName);
         PlayerDeadCoroutine(_num, _player.transform.position, _player.transform.localEulerAngles, 5);
         _player.SetActive(false);
