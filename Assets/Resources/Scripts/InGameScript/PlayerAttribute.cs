@@ -31,7 +31,11 @@ public class PlayerAttribute : MonoBehaviour
     public float PlayerHealth
     {
         get { return playerHealth; }
-        set { playerHealth -= value; }
+        set {
+            if (playerHealth <= 0)
+                playerHealth = playerHealthMax;
+            playerHealth -= value;
+        }
     }
     private string playerName;
     public string PlayerName
