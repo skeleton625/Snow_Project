@@ -52,7 +52,7 @@ public class BallController : MonoBehaviour, IPunObservable
         // 충돌한 위치에 충돌 효과 코루틴 실행
         Vector3 conflictPos = collision.contacts[0].point;
         Vector3 conflictRot = collision.contacts[0].normal;
-        PlayerPv.RPC("SendGetAttackEffect", RpcTarget.All, conflictPos, conflictRot);
+        SendGetAttackEffect(conflictPos, conflictRot);
         // 충돌된 공에 대해 다시 BallCylinder에 입력
         Models.SetSnowBall(MasterPlayerNum, BallNumber);
     }

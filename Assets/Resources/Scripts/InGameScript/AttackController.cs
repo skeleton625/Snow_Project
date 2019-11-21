@@ -1,4 +1,4 @@
-﻿
+﻿using System.Collections;
 using UnityEngine;
 using Photon.Pun;
 
@@ -23,6 +23,7 @@ public class AttackController : MonoBehaviour
     private InGameObjects Models;
     
     private bool IsAttack;
+    private bool isProtected;
 
     void Start()
     {
@@ -73,17 +74,18 @@ public class AttackController : MonoBehaviour
         // 같은 눈덩이 오브젝트의 경우 무시
         if (collision.gameObject.tag == "SnowBall")
         {
+            // 공격한 사람과 당한 사람 번호를 정의
             int _player = int.Parse(collision.gameObject.name.Split('_')[0]);
-
+            int _me = int.Parse(gameObject.name);
             // 자기 공에 대해선 무시
-            if (_player == StaticObjects.MasterPlayerNumber)
+            if (_player == _me)
                 return;
 
-            PlayerPv.RPC("SendPlayerAttacked", RpcTarget.All, StaticObjects.MasterPlayerNumber, _player);
+            // 공격 당했음을 모두에게 알림
+            SendPlayerAttacked(_me, _player);
         }
     }
 
-    [PunRPC]
     private void SendPlayerAttacked(int _player, int _attackPlayer)
     {
         // 각 플레이어 모델에 피해 적용
