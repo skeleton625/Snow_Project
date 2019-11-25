@@ -100,7 +100,7 @@ public class PlayerController : MonoBehaviour, IPunObservable
         if (gameObject.name == StaticObjects.MasterPlayerNumber + "")
         {
             Debug.Log(PlayerCamera);
-            PlayerCamera.transform.rotation = Quaternion.Euler(20, CurrentRotationY, 0);
+            PlayerCamera.transform.rotation = Quaternion.Euler(10, CurrentRotationY, 0);
             PlayerCamera.transform.parent = gameObject.transform;
         }
     }
