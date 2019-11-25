@@ -28,7 +28,9 @@ public class UIController : MonoBehaviour
         PlayerPv = GetComponent<PhotonView>();
         CameraPos = GameObject.Find("MainCamera").transform;
         if (PlayerPv.IsMine)
-            HealthBar = GameObject.Find("CharacterUI/MainHealthBar").GetComponent<Slider>();
+            HealthBar = GameObject.Find("CharacterUI").transform
+                                                      .GetChild(0)
+                                                      .GetComponent<Slider>();
         InitPlayerHealthBar();
     }
 
