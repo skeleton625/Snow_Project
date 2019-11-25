@@ -39,7 +39,7 @@ public class MasterUIManager : MonoBehaviour
         GameObject model = staticObject.GetPlayerModels(StaticObjects.MasterPlayerNumber);
 
         // 마우스 초기화
-        Cursor.visible = isMouseVisible;
+        Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -91,6 +91,8 @@ public class MasterUIManager : MonoBehaviour
             --_cnt;
         }
         isMouseVisible = false;
+        TimerLayer.SetActive(true);
+        MainHealthBar.SetActive(true);
         CountLayer.SetActive(false);
     }
 
