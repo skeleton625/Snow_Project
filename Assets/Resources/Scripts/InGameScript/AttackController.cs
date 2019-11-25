@@ -82,10 +82,12 @@ public class AttackController : MonoBehaviour
                 return;
 
             // 공격 당했음을 모두에게 알림
-            SendPlayerAttacked(_me, _player);
+            if (PlayerPv.IsMine)
+                PlayerPv.RPC("SendPlayerAttacked", RpcTarget.All, _me, _player);
         }
     }
 
+    [PunRPC]
     private void SendPlayerAttacked(int _player, int _attackPlayer)
     {
         // 각 플레이어 모델에 피해 적용
