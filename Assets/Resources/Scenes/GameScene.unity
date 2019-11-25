@@ -5820,6 +5820,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 245211345}
     m_Modifications:
+    - target: {fileID: 6903941737923501819, guid: 9690e841f44e8a24e9f089431f78a6ab,
+        type: 3}
+      propertyPath: m_Name
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 7692475946831670468, guid: 9690e841f44e8a24e9f089431f78a6ab,
         type: 3}
       propertyPath: m_Size.x
@@ -5839,11 +5844,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Center.x
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6903941737923501819, guid: 9690e841f44e8a24e9f089431f78a6ab,
-        type: 3}
-      propertyPath: m_Name
-      value: Wall
       objectReference: {fileID: 0}
     - target: {fileID: 7782500242414987673, guid: 9690e841f44e8a24e9f089431f78a6ab,
         type: 3}
@@ -6527,6 +6527,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 245211345}
     m_Modifications:
+    - target: {fileID: 6903941737923501819, guid: 9690e841f44e8a24e9f089431f78a6ab,
+        type: 3}
+      propertyPath: m_Name
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 7692475946831670468, guid: 9690e841f44e8a24e9f089431f78a6ab,
         type: 3}
       propertyPath: m_Size.x
@@ -6546,11 +6551,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Center.x
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6903941737923501819, guid: 9690e841f44e8a24e9f089431f78a6ab,
-        type: 3}
-      propertyPath: m_Name
-      value: Wall
       objectReference: {fileID: 0}
     - target: {fileID: 7782500242414987673, guid: 9690e841f44e8a24e9f089431f78a6ab,
         type: 3}
@@ -6746,6 +6746,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 245211345}
     m_Modifications:
+    - target: {fileID: 6903941737923501819, guid: 9690e841f44e8a24e9f089431f78a6ab,
+        type: 3}
+      propertyPath: m_Name
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 7692475946831670468, guid: 9690e841f44e8a24e9f089431f78a6ab,
         type: 3}
       propertyPath: m_Size.x
@@ -6765,11 +6770,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Center.x
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6903941737923501819, guid: 9690e841f44e8a24e9f089431f78a6ab,
-        type: 3}
-      propertyPath: m_Name
-      value: Wall
       objectReference: {fileID: 0}
     - target: {fileID: 7782500242414987673, guid: 9690e841f44e8a24e9f089431f78a6ab,
         type: 3}
@@ -7906,10 +7906,10 @@ MonoBehaviour:
   StaticPv: {fileID: 1802875184}
   Models: {fileID: 1802875183}
   PlayerAttackDamage:
-  - 5
-  - 5
-  - 5
-  - 5
+  - 15
+  - 15
+  - 15
+  - 15
   PlayerNumbers: 4
   KillingList:
   - {fileID: 650916977}
@@ -7993,6 +7993,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 245211345}
     m_Modifications:
+    - target: {fileID: 6903941737923501819, guid: 9690e841f44e8a24e9f089431f78a6ab,
+        type: 3}
+      propertyPath: m_Name
+      value: Wall
+      objectReference: {fileID: 0}
     - target: {fileID: 7692475946831670468, guid: 9690e841f44e8a24e9f089431f78a6ab,
         type: 3}
       propertyPath: m_Size.x
@@ -8012,11 +8017,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Center.x
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6903941737923501819, guid: 9690e841f44e8a24e9f089431f78a6ab,
-        type: 3}
-      propertyPath: m_Name
-      value: Wall
       objectReference: {fileID: 0}
     - target: {fileID: 7782500242414987673, guid: 9690e841f44e8a24e9f089431f78a6ab,
         type: 3}
