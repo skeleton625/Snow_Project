@@ -97,6 +97,8 @@ public class MenuManager : MonoBehaviour
         {
             PlayerReady = false;
             PlayerNumber = 0;
+            for (int i = 0; i < IsReady.Length; i++)
+                IsReady[i] = false;
             PhotonNet.LeaveRoom();
         }
     }
@@ -159,8 +161,9 @@ public class MenuManager : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
-            GameObject PlayerPos = UI[3].transform.Find("Player " + i + "/Username/Text").gameObject;
-            PlayerPos.GetComponent<Text>().text = "None";
+            GameObject PlayerName = UI[3].transform.Find("Player " + i + "/Username").gameObject;
+            PlayerName.GetComponent<Image>().color = Color.white;
+            PlayerName.GetComponentInChildren<Text>().text = "None";
         }
 
         for (int i = 0; i < _playerList.Length; i++)
@@ -170,7 +173,6 @@ public class MenuManager : MonoBehaviour
                 PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + "_" + i;
                 PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, PlayerReady);
                 PlayerNumber = i;
-                
             }
             GameObject PlayerPos = UI[3].transform.Find("Player " + i + "/Username/Text").gameObject;
             PlayerPos.GetComponent<Text>().text = _playerList[i].NickName.Split('_')[0];
