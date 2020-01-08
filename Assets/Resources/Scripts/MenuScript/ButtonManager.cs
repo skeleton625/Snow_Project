@@ -9,7 +9,7 @@ public class ButtonManager : MonoBehaviour
 
     void Start()
     {
-        PlayerMenu = GameObject.Find("PhotonNetworkObject").GetComponent<MenuManager>();    
+        PlayerMenu = GameObject.Find("PhotonNetwork").GetComponent<MenuManager>();    
     }
 
     public void JoinLobbyButtonClick()
@@ -20,7 +20,7 @@ public class ButtonManager : MonoBehaviour
 
     public void RemovePopupButtonClick()
     {
-        Destroy(this.gameObject.transform.parent.gameObject);
+        this.gameObject.transform.parent.gameObject.SetActive(false);
     }
 
     public void RoomButtonClick()
