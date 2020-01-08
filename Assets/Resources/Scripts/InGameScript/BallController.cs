@@ -16,12 +16,12 @@ public class BallController : MonoBehaviour, IPunObservable
     private bool IsActive;
     // 공 관리 객체
     [SerializeField]
-    private InGameObjects Models;
+    private ObjectManager Models;
     private PhotonView PlayerPv;
     private int MasterPlayerNum;
     private int BallNumber;
 
-    public void BallControllerInit(int _player, int _num, InGameObjects _models)
+    public void BallControllerInit(int _player, int _num, ObjectManager _models)
     {
         Models = _models;
         BallNumber = _num;
@@ -53,6 +53,8 @@ public class BallController : MonoBehaviour, IPunObservable
         Vector3 conflictPos = collision.contacts[0].point;
         Vector3 conflictRot = collision.contacts[0].normal;
         SendGetAttackEffect(conflictPos, conflictRot);
+        // 공 이동 코루틴 종료
+        StopCoroutine(ThrowingBall());
         // 충돌된 공에 대해 다시 BallCylinder에 입력
         Models.SetSnowBall(MasterPlayerNum, BallNumber);
     }

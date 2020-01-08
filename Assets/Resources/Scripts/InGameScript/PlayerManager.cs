@@ -14,7 +14,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     private PhotonView StaticPv;
     // GameScene 내 모든 오브젝트 관리 객체
     [SerializeField]
-    private InGameObjects Models;
+    private ObjectManager Models;
     // GameScene 내 각 플레이어의 피해 값 변수
     [SerializeField]
     private float[] PlayerAttackDamage;
@@ -30,20 +30,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
 
     // 모든 플레이어 준비 파악 변수
     private bool[] PlayerReady;
-    // 클라이언트 플레이어 번호 변수
-    private int masterPlayerNum;
-    public int MasterPlayerNum
-        { get{ return masterPlayerNum; } }
-
 
     void Awake()
     {
-        // 현재 클라이언트의 플레이어
-        masterPlayerNum = int.Parse(PhotonNetwork.NickName.Split('_')[1]);
         // 각 플레이어 준비 변수 초기화
-        PlayerReady = new bool[PlayerNumbers];
         KillDict = new Dictionary<string, int>();
-        for(int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+        PlayerReady = new bool[PlayerNumbers];
+        for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             KillDict.Add(PhotonNetwork.PlayerList[i].NickName, 0);
     }
     void Start()
@@ -79,14 +72,14 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             _player.GetComponent<PlayerAttribute>().PlayerName = 
                                            PhotonNetwork.PlayerList[i].NickName.Split('_')[0];
 
-            GetComponent<InGameObjects>().GenAttackSnowBall(i);
-            GetComponent<InGameObjects>().GenAttackEffect(i);
+            GetComponent<ObjectManager>().GenAttackSnowBall(i);
+            GetComponent<ObjectManager>().GenAttackEffect(i);
             _player.GetComponent<PlayerController>().enabled = true;
             _player.GetComponent<AttackController>().enabled = true;
             _player.GetComponent<PlayerAttribute>().enabled = true;
             _player.GetComponent<UIController>().enabled = true;
         }
-        StaticPv.RPC("SetPlayerReady", RpcTarget.All, masterPlayerNum);
+        StaticPv.RPC("SetPlayerReady", RpcTarget.All, StaticObjects.MasterPlayerNumber);
     }
     private void SettingKillingBlocks(string _player, string _attackPlayer)
     {
@@ -171,7 +164,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         GameObject _player = Models.GetPlayerModels(_num);
 
         // 죽는 플레이어가 클라이언트의 플레이어일 경우
-        if (_num == masterPlayerNum)
+        if (_num == StaticObjects.MasterPlayerNumber)
         {
             MainCamera.transform.parent = null;
             StartCoroutine(MainCamera.GetComponent<MasterUIManager>().ActivateDeadScene(5));

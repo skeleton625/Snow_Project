@@ -20,7 +20,7 @@ public class AttackController : MonoBehaviour
     private PhotonView PlayerPv;
     private MasterUIManager UIManager;
     private PlayerManager PManager;
-    private InGameObjects Models;
+    private ObjectManager Models;
     
     private bool IsAttack;
     private bool isProtected;
@@ -29,7 +29,7 @@ public class AttackController : MonoBehaviour
     {
         GameObject staticObj = GameObject.Find("StaticObjects");
         PManager = staticObj.GetComponent<PlayerManager>();
-        Models = staticObj.GetComponent<InGameObjects>();
+        Models = staticObj.GetComponent<ObjectManager>();
         PlayerPv = GetComponent<PhotonView>();
 
         if (PlayerPv.IsMine)
