@@ -37,5 +37,24 @@ MonoBehaviour:
   - SettingPlayerModelName
   - AttackedPlayer
   - AttackingPlayer
+  - AllPlayerLeaveRoom
+  - PlayerMoveScene
+  - PressReady
+  - PlayerStartGame
+  - PlayerOutTheGame
+  - PlayerDeactive
+  - SendPlayerAttacked
+  - GetSnowBall
+  - SetSnowBall
+  - GetAttackEffect
+  - SendGetSnowBall
+  - SendGetAttackEffect
+  - SendSetSnowBall
+  - CreatePlayer
+  - IsAllPlayerInTheGame
+  - GameStart
+  - GenAttackSnowBall
+  - ActivateKillingBlocks
+  - SetPlayerReady
   DisableAutoOpenWizard: 1
   ShowSettings: 1
