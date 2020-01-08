@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class InGameObjects : MonoBehaviour
+public class ObjectManager : MonoBehaviour
 {
     // 플레이어 오브젝트 관련 객체들
     [SerializeField]
@@ -129,11 +129,8 @@ public class InGameObjects : MonoBehaviour
     public void SetSnowBall(int _player, int _num)
     {
         GameObject _ball = BallArray[_player, _num];
-        // 공 이동 코루틴 종료
-        StopCoroutine(_ball.GetComponent<BallController>().ThrowingBall());
         _ball.transform.position = BallGenPos;
         _ball.SetActive(false);
-
         BallCylinder[_player].Enqueue(_num);
     }
 
