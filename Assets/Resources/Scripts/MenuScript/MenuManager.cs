@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Photon.Pun;
 using Photon.Realtime;
@@ -9,250 +8,231 @@ using Photon.Realtime;
 public class MenuManager : MonoBehaviour
 {
     [SerializeField]
-    private GameObject[] UI;
+    private PhotonView PV;
     [SerializeField]
-    private GameObject UserNameInput;
-    [SerializeField]
-    private Text UserNameText;
+    private PhotonNet MenuNetwork;
 
-    private bool PlayerReady;
-    private bool[] IsReady;
+    private bool[] AllPlayerReady;
+    private bool MasterPlayerReady;
     private int PreMenuNum;
     private int PlayerNumber;
-    private PhotonView PV;
-    private PhotonInMenu PhotonNet;
+    private MenuUIManager UiManager;
 
     void Start()
     {
-        PlayerReady = false;
         PlayerNumber = 0;
-        IsReady = new bool[4];
-        PV = GetComponent<PhotonView>();
-        PhotonNet = GetComponent<PhotonInMenu>();
-        UserNameText.text = PhotonNetwork.NickName.Split('_')[0];
-        if (PhotonNet.LeaveRoom())
+        MasterPlayerReady = false;
+        UiManager = MenuUIManager.instance;
+
+        AllPlayerReady = new bool[4];
+        if (MenuNetwork.LeaveRoom())
             setMenuActive(1, null);
     }
 
     void Update()
     {
-        if (PhotonNet.IsLobbyUpdate)
-            CreateRoomButtons();
-        if (PhotonNet.IsRoomUpdate)
+        if (MenuNetwork.IsLobbyUpdate)
+            DisplayRoomButtons();
+        if (MenuNetwork.IsRoomUpdate)
             SettingRoomPlayers();
     }
 
     public void setPlayerName()
     {
-        string _name = UserNameInput.GetComponent<InputField>().text;
-        if (_name == "")
-            _name = "NoName";
-
-        UserNameText.text = _name;
-        PhotonNet.OnLogin(_name);
+        // 플레이어가 입력한 이름으로 네트워크에 로그인 진행
+        MenuNetwork.OnLogin(UiManager.GetInputPlayerName());
     }
 
     public void setMenuActive(int _num, string option)
     {
-        UI[PreMenuNum].SetActive(false);
+        // 이전 Ui 화면 비활성화
+        UiManager.SetUIActive(PreMenuNum, false);
+        // 이전 Ui 화면을 현재로 재설정
         PreMenuNum = _num;
 
         switch (_num)
         {
+            // 1, 3번 Ui일 경우, Room에 있지 않거나 Lobby에 있지 않을 경우, 대기 상태
             case 1: case 3:
-                if (!PhotonNet.IsRoom() || !PhotonNet.IsLobby())
+                if (!MenuNetwork.IsRoom() || !MenuNetwork.IsLobby())
                     StartCoroutine(WaitingCoroutine(option));
                 break;
+            // 1, 3 번 Ui가 아닐 경우, 활성화
             default:
-                UI[_num].SetActive(true);
+                UiManager.SetUIActive(_num, true);
                 break;
         }
     }
 
     public void CreateRoomByMaster()
     {
-        string _roomName = GameObject.Find("RoomName/InputField").GetComponent<InputField>().text;
-        StaticObjects.GamePlayTime = int.Parse(GameObject.Find("PlayTime/InputField")
-                                                                .GetComponent<InputField>().text);
-        if (!PhotonNet.CreateRoom(_roomName))
+        // 방 생성 시, 입력한 방 이름을 반환 받음
+        string _roomName = UiManager.GetInputRoomName();
+
+        // 방을 PhotonNetwork에서 생성, 생성되지 않을 시 오류 팝업창을 띄움
+        if (!MenuNetwork.CreateRoom(_roomName))
         {
-            GeneratePopup(1, "This Room name is already Exist");
+            UiManager.VerifyPopup(1, "This Room name is already Exist");
             setMenuActive(1, _roomName);
             return;
         }
+
+        // 방 생성 시, Ui 3번으로 이동
         setMenuActive(3, _roomName);
     }
 
     public void PlayerJoinRoom(string _roomName)
     {
-        PhotonNet.JoinRoom(_roomName);
+        // PhotonNetwork에서 플레이어가 원하는 방에 입장
+        MenuNetwork.JoinRoom(_roomName);
+        // 방 입장 시, Ui 3번으로 이동
         setMenuActive(3, _roomName);
     }
 
     public void PlayerLeaveRoom()
     {
-        if (PhotonNet.IsRoomMaster())
+        // 방 퇴장 시에 플레이어가 방장일 경우, 모든 플레이어 퇴장
+        if (MenuNetwork.IsRoomMaster())
             PV.RPC("AllPlayerLeaveRoom", RpcTarget.All);
+        // 그렇지 않을 경우, 플레이어 방 정보 초기화
         else
         {
-            PlayerReady = false;
             PlayerNumber = 0;
-            for (int i = 0; i < IsReady.Length; i++)
-                IsReady[i] = false;
-            PhotonNet.LeaveRoom();
+            MasterPlayerReady = false;
+
+            for (int i = 0; i < AllPlayerReady.Length; i++)
+                AllPlayerReady[i] = false;
+            MenuNetwork.LeaveRoom();
         }
     }
 
     public void MasterStartGame()
     {
+        // 플레이어가 방장일 경우, 모든 플레이어가 시작 버튼을 눌렀는지 확인
         if (PlayerNumber == 0)
         {
-            if (!PressGameStart())
-                GeneratePopup(3, "Someone don't press Ready Button");
+            // 누르지 않았을 경우, 오류 팝업창을 띄움
+            if (!VerifyPressStartButton())
+                UiManager.VerifyPopup(3, "Someone don't press Ready Button");
+            // 모든 플레이어가 눌렀을 경우, GameScene으로 이동
             else
             {
                 PV.RPC("PlayerStartGame", RpcTarget.All, StaticObjects.GamePlayTime);
                 PhotonNetwork.CurrentRoom.IsOpen = false;
             }
         }
+        // 플레이어가 방장이 아니면 플레이어의 상태를 "준비됨"으로 변경
         else
         {
-            PlayerReady = !PlayerReady;
-            PV.RPC("PressReady", RpcTarget.All, PlayerNumber, PlayerReady);
+            MasterPlayerReady = !MasterPlayerReady;
+            PV.RPC("PressReady", RpcTarget.All, PlayerNumber, MasterPlayerReady);
         }
     }
 
-    private bool PressGameStart()
+    private bool VerifyPressStartButton()
     {
+        // 현재 모든 플레이어가 준비 되어있는지를 확인
         for (int i = 1; i < PhotonNetwork.PlayerList.Length; i++)
         {
-            if (!IsReady[i])
+            if (!AllPlayerReady[i])
                 return false;
         }
         return true;
     }
 
-    private void CreateRoomButtons()
+    private void DisplayRoomButtons()
     {
-        Vector3 ButtonInit = new Vector3(0, -50, 0);
-        List<string> RoomNames = PhotonNet.GetRoomNames();
-        GameObject ButtonModel = Resources.Load("Prefabs/UI/RoomButton") as GameObject;
-        GameObject Content = UI[1].transform.Find("SelectRoomBar/Viewport/Content").gameObject;
-
-        for (int i = 0; i < Content.transform.childCount; i++)
-            Destroy(Content.transform.GetChild(i).gameObject);
-
-        for (int i = 0; i < RoomNames.Count; i++)
-        {
-            GameObject _button = Instantiate(ButtonModel, Content.transform);
-            _button.name = RoomNames[i];
-            _button.transform.localPosition = new Vector3(_button.transform.localPosition.x, -50 - 100 * i, 0);
-            _button.transform.Find("Text").GetComponent<Text>().text = RoomNames[i];
-        }
-
-        PhotonNet.IsLobbyUpdate = false;
+        // 방 생성 시, 표시되는 버튼 개수 초기화
+        UiManager.DisplayPreRoomButtons(MenuNetwork.GetRoomNames());
+        // 방 생성이 완료되었음을 정의
+        MenuNetwork.IsLobbyUpdate = false;
     }
 
     private void SettingRoomPlayers()
     {
-        Player[] _playerList = PhotonNet.GetPlayerList();
-        UI[3].transform.Find("Header/RoomName").GetComponent<Text>().text
-            = PhotonNet.GetCurrentRoomName();
+        // 현재 방 정보를 초기화함
+        UiManager.SetPreRoomName(MenuNetwork.GetCurrentRoomName());
 
-        for (int i = 0; i < 4; i++)
-        {
-            GameObject PlayerName = UI[3].transform.Find("Player " + i + "/Username").gameObject;
-            PlayerName.GetComponent<Image>().color = Color.white;
-            PlayerName.GetComponentInChildren<Text>().text = "None";
-        }
-
+        // 현재 방의 플레이어 정보를 가져옴
+        Player[] _playerList = MenuNetwork.GetPlayerList();
         for (int i = 0; i < _playerList.Length; i++)
         {
+            // 각 플레이어의 방에 변경된 정보(준비됨, 준비되지 않음)를 갱신함
             if (PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
             {
                 PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + "_" + i;
-                PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, PlayerReady);
+                PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, MasterPlayerReady);
                 PlayerNumber = i;
             }
-            GameObject PlayerPos = UI[3].transform.Find("Player " + i + "/Username/Text").gameObject;
-            PlayerPos.GetComponent<Text>().text = _playerList[i].NickName.Split('_')[0];
+            UiManager.SetPlayerNameInRoom(i, _playerList[i].NickName.Split('_')[0]);
         }
-
-        PhotonNet.IsRoomUpdate = false;
-    }
-
-    private void GeneratePopup(int _num, string _inform)
-    {
-        GameObject _popup = Instantiate(Resources.Load("Prefabs/UI/Popup") as GameObject, UI[_num].transform);
-
-        _popup.transform.Find("Content/Text").GetComponent<Text>().text = _inform;
+        // 방 정보가 갱신되었음을 정의
+        MenuNetwork.IsRoomUpdate = false;
     }
 
     private IEnumerator WaitingCoroutine(string option)
     {
-        UI[4].SetActive(true);
+        // 대기중 Ui 표시
+        UiManager.SetUIActive(4, true);
         Debug.Log("Waiting...");
 
+        // 이동할 Ui 번호에 따라 다음 내용을 진행
         switch (PreMenuNum)
         {
+            // 1번 Ui일 경우
             case 1:
-                while (!PhotonNet.IsLobby())
+                // 플레이어가 PhotonNetwork에서 Lobby로 들어갈 때까지 대기
+                while (!MenuNetwork.IsLobby())
                     yield return null;
 
-                CreateRoomButtons();
+                // 들어갔을 경우, 현재 존재하는 방 버튼을 Lobby에 정의
+                DisplayRoomButtons();
                 break;
+            // 3번 Ui일 경우
             case 3:
+                // 플레이어가 PhotonNetwork에서 해당 방을 들어갈 때까지 대기
                 float _timer = 0;
-
-                while (!PhotonNet.IsRoom())
+                while (!MenuNetwork.IsRoom())
                 {
                     _timer += Time.deltaTime;
+                    // 8초가 지나도록 들어가지 못할 경우, 오류를 출력하고 Lobby로 이동
                     if (_timer > 8)
                     {
                         PreMenuNum = 1;
-                        PhotonNet.DeleteRoom(option);
-                        GeneratePopup(1, "This room does not Exist");
+                        MenuNetwork.DeleteRoom(option);
+                        UiManager.VerifyPopup(1, "This room does not Exist");
                         break;
                     }
                     yield return null;
                 }
 
+                // 8초 이전에 방에 들어갈 경우 방 갱신을 정의
                 if (_timer < 8)
-                    PhotonNet.IsRoomUpdate = true;
-
+                    MenuNetwork.IsRoomUpdate = true;
                 break;
         }
 
-        UI[4].SetActive(false);
-        UI[PreMenuNum].SetActive(true);
+        // 대기 화면 비활성화 및 다음 화면 활성화
+        UiManager.SetUIActive(4, false);
+        UiManager.SetUIActive(PreMenuNum, true);
         yield return null;
     }
 
     [PunRPC]
     private void PressReady(int _num, bool _isReady)
     {
-        GameObject UserName = UI[3].transform.Find("Player " + _num + "/Username").gameObject;
-        IsReady[_num] = _isReady;
-        if (IsReady[_num])
-            UserName.GetComponent<Image>().color = Color.green;
-        else
-            UserName.GetComponent<Image>().color = Color.white;
+        AllPlayerReady[_num] = _isReady;
+        UiManager.SetPlayerReadyInRoom(_num, _isReady);
     }
 
     [PunRPC]
     private void PressReady(int _prenum, int _num, bool _isReady)
     {
-        GameObject PreUserName = UI[3].transform.Find("Player " + _prenum + "/Username").gameObject;
-        GameObject UserName = UI[3].transform.Find("Player " + _num + "/Username").gameObject;
-
-        IsReady[_prenum] = false;
-        PreUserName.GetComponent<Image>().color = Color.white;
-        IsReady[_num] = _isReady;
-
-        if (IsReady[_num])
-            UserName.GetComponent<Image>().color = Color.green;
-        else
-            UserName.GetComponent<Image>().color = Color.white;
+        // 플레이어 이동에 따른 방 정보 갱신 진행
+        AllPlayerReady[_prenum] = false;
+        UiManager.SetPlayerReadyInRoom(_prenum, false);
+        AllPlayerReady[_num] = _isReady;
+        UiManager.SetPlayerReadyInRoom(_num, _isReady);
     }
 
     [PunRPC]
@@ -266,8 +246,8 @@ public class MenuManager : MonoBehaviour
     [PunRPC]
     private void AllPlayerLeaveRoom()
     {
-        PlayerReady = false;
-        PhotonNet.LeaveRoom();
+        MasterPlayerReady = false;
+        MenuNetwork.LeaveRoom();
         setMenuActive(1, null);
     }
 }
