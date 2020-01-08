@@ -8,9 +8,9 @@ public class UIController : MonoBehaviour
     [SerializeField]
     private float ActivateFullTime;
     [SerializeField]
-    private Slider HealthBar;
-    [SerializeField]
     private Text NickNameBar;
+    [SerializeField]
+    private Slider HealthBar;
     [SerializeField]
     private GameObject HealthUI;
     [SerializeField]

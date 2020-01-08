@@ -34,9 +34,6 @@ public class MasterUIManager : MonoBehaviour
     void Start()
     {
         CurrentTime = StaticObjects.GamePlayTime;
-        InGameObjects staticObject = 
-            GameObject.Find("StaticObjects").GetComponent<InGameObjects>();
-        GameObject model = staticObject.GetPlayerModels(StaticObjects.MasterPlayerNumber);
 
         // 마우스 초기화
         Cursor.visible = false;
@@ -46,10 +43,10 @@ public class MasterUIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        MouseLockInScene();
+        SetMouseLockInScene();
     }
 
-    private void MouseLockInScene()
+    private void SetMouseLockInScene()
     {
         if (Input.GetKeyDown(KeyCode.Escape) && !IsGameEnd)
         {
@@ -76,8 +73,8 @@ public class MasterUIManager : MonoBehaviour
             yield return new WaitForSeconds(1f);
             --_cnt;
         }
-        CountLayer.SetActive(false);
         DeadText.SetActive(false);
+        CountLayer.SetActive(false);
     }
 
     public IEnumerator ActivateGameStart(float _cnt)
@@ -92,8 +89,8 @@ public class MasterUIManager : MonoBehaviour
         }
         isMouseVisible = false;
         TimerLayer.SetActive(true);
-        MainHealthBar.SetActive(true);
         CountLayer.SetActive(false);
+        MainHealthBar.SetActive(true);
     }
 
     public IEnumerator ClockingGameTimeCoroutine()
@@ -116,8 +113,8 @@ public class MasterUIManager : MonoBehaviour
         }
 
         TimerLayer.SetActive(false);
-        MainHealthBar.SetActive(false);
         GameSetLayer.SetActive(true);
+        MainHealthBar.SetActive(false);
 
         IsGameEnd = true;
         Cursor.visible = true;
