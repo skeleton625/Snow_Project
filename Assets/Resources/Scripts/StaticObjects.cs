@@ -3,11 +3,17 @@ using Photon.Realtime;
 
 public static class StaticObjects
 {
-    private static int masterPlayerNumber;
-    public static int MasterPlayerNumber
+    private static int masterPlayerNum;
+    public static int MasterPlayerNum
     {
-        get{ return masterPlayerNumber; }
-        set{ masterPlayerNumber = value; }
+        get{ return masterPlayerNum; }
+        set{ masterPlayerNum = value; }
+    }
+    private static int masterPlayerModelNum;
+    public static int MasterPlayerModelNum
+    {
+        get { return masterPlayerModelNum; }
+        set { masterPlayerModelNum = value; }
     }
     private static bool isGameStart;
     public static bool IsGameStart
