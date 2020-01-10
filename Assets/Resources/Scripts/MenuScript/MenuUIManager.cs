@@ -11,6 +11,8 @@ public class MenuUIManager : MonoBehaviour
     private GameObject[] UI;
     [SerializeField]
     private GameObject[] RoomButtons;
+    [SerializeField]
+    private GameObject CharacterModels;
 
     [SerializeField]
     private InputField UserNameInput;
@@ -32,12 +34,13 @@ public class MenuUIManager : MonoBehaviour
     private Text[] PlayerNamesText;
     [SerializeField]
     private Image[] PlayerNamesImage;
-    
 
+    
     public static MenuUIManager instance;
 
     private void Awake()
     {
+        // 자기 스크립트 싱글톤 설정
         instance = this;
     }
 
@@ -66,6 +69,10 @@ public class MenuUIManager : MonoBehaviour
 
     public void SetUIActive(int _num, bool _isActive)
     {
+        if (_num == 3)
+            CharacterModels.SetActive(true);
+        else
+            CharacterModels.SetActive(false);
         UI[_num].SetActive(_isActive);
     }
 
@@ -80,12 +87,12 @@ public class MenuUIManager : MonoBehaviour
             RoomButtons[i].name = _rooms[i];
             RoomButtonText[i].text = _rooms[i];
         }
-            
+
     }
 
     public void InitPlayerReadyInRoom()
     {
-        for(int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; i++)
         {
             PlayerNamesImage[i].color = Color.white;
             PlayerNamesText[i].text = "None";
@@ -107,7 +114,7 @@ public class MenuUIManager : MonoBehaviour
 
     public void VerifyPopup(int _num, string _inform)
     {
-        switch(_num)
+        switch (_num)
         {
             case 1:
                 Popups[0].SetActive(true);

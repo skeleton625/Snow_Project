@@ -14,8 +14,8 @@ public class ButtonManager : MonoBehaviour
 
     public void JoinLobbyButtonClick()
     {
-        PlayerMenu.setPlayerName();
-        PlayerMenu.setMenuActive(1, null);
+        PlayerMenu.SetPlayerName();
+        PlayerMenu.SetMenuActive(1, null);
     }
 
     public void RemovePopupButtonClick()
@@ -25,7 +25,7 @@ public class ButtonManager : MonoBehaviour
 
     public void RoomButtonClick()
     {
-        PlayerMenu.setMenuActive(2, null);
+        PlayerMenu.SetMenuActive(2, null);
     }
 
     public void CreateRoomButtonClick()
@@ -45,12 +45,17 @@ public class ButtonManager : MonoBehaviour
 
     public void CancelRoomButtonClick()
     {
-        PlayerMenu.setMenuActive(1, null);
+        PlayerMenu.SetMenuActive(1, null);
     }
 
     public void LeaveRoomButtonClick()
     {
         PlayerMenu.PlayerLeaveRoom();
-        PlayerMenu.setMenuActive(1, null);
+        PlayerMenu.SetMenuActive(1, null);
+    }
+
+    public void OnChangeCharButtonClick(bool _isLeft)
+    {
+        PlayerMenu.SetPlayerModel(_isLeft);
     }
 }

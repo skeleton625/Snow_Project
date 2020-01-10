@@ -16,17 +16,21 @@ public class MenuManager : MonoBehaviour
     private bool MasterPlayerReady;
     private int PreMenuNum;
     private int PlayerNumber;
-    private MenuUIManager UiManager;
+    private MenuUIManager UManager;
+    private InMenuObjectManager OManager;
 
     void Start()
     {
+        // 싱글톤 변수 할당
+        UManager = MenuUIManager.instance;
+        OManager = InMenuObjectManager.instance;
+
+        // 현재 플레이어 변수 초기화
         PlayerNumber = 0;
         MasterPlayerReady = false;
-        UiManager = MenuUIManager.instance;
-
         AllPlayerReady = new bool[4];
         if (MenuNetwork.LeaveRoom())
-            setMenuActive(1, null);
+            SetMenuActive(1, null);
     }
 
     void Update()
@@ -37,16 +41,21 @@ public class MenuManager : MonoBehaviour
             SettingRoomPlayers();
     }
 
-    public void setPlayerName()
+    public void SetPlayerName()
     {
         // 플레이어가 입력한 이름으로 네트워크에 로그인 진행
-        MenuNetwork.OnLogin(UiManager.GetInputPlayerName());
+        MenuNetwork.OnLogin(UManager.GetInputPlayerName());
     }
 
-    public void setMenuActive(int _num, string option)
+    public void SetPlayerModel(bool _isLeft)
+    {
+        OManager.SetActivateModel(_isLeft);
+    }
+
+    public void SetMenuActive(int _num, string option)
     {
         // 이전 Ui 화면 비활성화
-        UiManager.SetUIActive(PreMenuNum, false);
+        UManager.SetUIActive(PreMenuNum, false);
         // 이전 Ui 화면을 현재로 재설정
         PreMenuNum = _num;
 
@@ -59,7 +68,7 @@ public class MenuManager : MonoBehaviour
                 break;
             // 1, 3 번 Ui가 아닐 경우, 활성화
             default:
-                UiManager.SetUIActive(_num, true);
+                UManager.SetUIActive(_num, true);
                 break;
         }
     }
@@ -67,18 +76,18 @@ public class MenuManager : MonoBehaviour
     public void CreateRoomByMaster()
     {
         // 방 생성 시, 입력한 방 이름을 반환 받음
-        string _roomName = UiManager.GetInputRoomName();
+        string _roomName = UManager.GetInputRoomName();
 
         // 방을 PhotonNetwork에서 생성, 생성되지 않을 시 오류 팝업창을 띄움
         if (!MenuNetwork.CreateRoom(_roomName))
         {
-            UiManager.VerifyPopup(1, "This Room name is already Exist");
-            setMenuActive(1, _roomName);
+            UManager.VerifyPopup(1, "This Room name is already Exist");
+            SetMenuActive(1, _roomName);
             return;
         }
 
         // 방 생성 시, Ui 3번으로 이동
-        setMenuActive(3, _roomName);
+        SetMenuActive(3, _roomName);
     }
 
     public void PlayerJoinRoom(string _roomName)
@@ -86,7 +95,7 @@ public class MenuManager : MonoBehaviour
         // PhotonNetwork에서 플레이어가 원하는 방에 입장
         MenuNetwork.JoinRoom(_roomName);
         // 방 입장 시, Ui 3번으로 이동
-        setMenuActive(3, _roomName);
+        SetMenuActive(3, _roomName);
     }
 
     public void PlayerLeaveRoom()
@@ -113,7 +122,7 @@ public class MenuManager : MonoBehaviour
         {
             // 누르지 않았을 경우, 오류 팝업창을 띄움
             if (!VerifyPressStartButton())
-                UiManager.VerifyPopup(3, "Someone don't press Ready Button");
+                UManager.VerifyPopup(3, "Someone don't press Ready Button");
             // 모든 플레이어가 눌렀을 경우, GameScene으로 이동
             else
             {
@@ -143,7 +152,7 @@ public class MenuManager : MonoBehaviour
     private void DisplayRoomButtons()
     {
         // 방 생성 시, 표시되는 버튼 개수 초기화
-        UiManager.DisplayPreRoomButtons(MenuNetwork.GetRoomNames());
+        UManager.DisplayPreRoomButtons(MenuNetwork.GetRoomNames());
         // 방 생성이 완료되었음을 정의
         MenuNetwork.IsLobbyUpdate = false;
     }
@@ -151,7 +160,7 @@ public class MenuManager : MonoBehaviour
     private void SettingRoomPlayers()
     {
         // 현재 방 정보를 초기화함
-        UiManager.SetPreRoomName(MenuNetwork.GetCurrentRoomName());
+        UManager.SetPreRoomName(MenuNetwork.GetCurrentRoomName());
 
         // 현재 방의 플레이어 정보를 가져옴
         Player[] _playerList = MenuNetwork.GetPlayerList();
@@ -164,7 +173,7 @@ public class MenuManager : MonoBehaviour
                 PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, MasterPlayerReady);
                 PlayerNumber = i;
             }
-            UiManager.SetPlayerNameInRoom(i, _playerList[i].NickName.Split('_')[0]);
+            UManager.SetPlayerNameInRoom(i, _playerList[i].NickName.Split('_')[0]);
         }
         // 방 정보가 갱신되었음을 정의
         MenuNetwork.IsRoomUpdate = false;
@@ -173,7 +182,7 @@ public class MenuManager : MonoBehaviour
     private IEnumerator WaitingCoroutine(string option)
     {
         // 대기중 Ui 표시
-        UiManager.SetUIActive(4, true);
+        UManager.SetUIActive(4, true);
         Debug.Log("Waiting...");
 
         // 이동할 Ui 번호에 따라 다음 내용을 진행
@@ -200,7 +209,7 @@ public class MenuManager : MonoBehaviour
                     {
                         PreMenuNum = 1;
                         MenuNetwork.DeleteRoom(option);
-                        UiManager.VerifyPopup(1, "This room does not Exist");
+                        UManager.VerifyPopup(1, "This room does not Exist");
                         break;
                     }
                     yield return null;
@@ -213,8 +222,8 @@ public class MenuManager : MonoBehaviour
         }
 
         // 대기 화면 비활성화 및 다음 화면 활성화
-        UiManager.SetUIActive(4, false);
-        UiManager.SetUIActive(PreMenuNum, true);
+        UManager.SetUIActive(4, false);
+        UManager.SetUIActive(PreMenuNum, true);
         yield return null;
     }
 
@@ -222,7 +231,7 @@ public class MenuManager : MonoBehaviour
     private void PressReady(int _num, bool _isReady)
     {
         AllPlayerReady[_num] = _isReady;
-        UiManager.SetPlayerReadyInRoom(_num, _isReady);
+        UManager.SetPlayerReadyInRoom(_num, _isReady);
     }
 
     [PunRPC]
@@ -230,15 +239,15 @@ public class MenuManager : MonoBehaviour
     {
         // 플레이어 이동에 따른 방 정보 갱신 진행
         AllPlayerReady[_prenum] = false;
-        UiManager.SetPlayerReadyInRoom(_prenum, false);
+        UManager.SetPlayerReadyInRoom(_prenum, false);
         AllPlayerReady[_num] = _isReady;
-        UiManager.SetPlayerReadyInRoom(_num, _isReady);
+        UManager.SetPlayerReadyInRoom(_num, _isReady);
     }
 
     [PunRPC]
     public void PlayerStartGame(int _timer)
     {
-        StaticObjects.MasterPlayerNumber = PlayerNumber;
+        StaticObjects.MasterPlayerNum = PlayerNumber;
         StaticObjects.GamePlayTime = _timer;
         SceneManager.LoadScene("GameScene");
     }
@@ -248,6 +257,6 @@ public class MenuManager : MonoBehaviour
     {
         MasterPlayerReady = false;
         MenuNetwork.LeaveRoom();
-        setMenuActive(1, null);
+        SetMenuActive(1, null);
     }
 }
