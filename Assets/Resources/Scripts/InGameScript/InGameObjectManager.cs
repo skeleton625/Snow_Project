@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class ObjectManager : MonoBehaviour
+public class InGameObjectManager : MonoBehaviour
 {
     // 플레이어 오브젝트 관련 객체들
     [SerializeField]

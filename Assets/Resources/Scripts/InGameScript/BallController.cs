@@ -16,12 +16,12 @@ public class BallController : MonoBehaviour, IPunObservable
     private bool IsActive;
     // 공 관리 객체
     [SerializeField]
-    private ObjectManager Models;
+    private InGameObjectManager Models;
     private PhotonView PlayerPv;
     private int MasterPlayerNum;
     private int BallNumber;
 
-    public void BallControllerInit(int _player, int _num, ObjectManager _models)
+    public void BallControllerInit(int _player, int _num, InGameObjectManager _models)
     {
         Models = _models;
         BallNumber = _num;

@@ -55,7 +55,7 @@ public class PlayerController : MonoBehaviour, IPunObservable
     // Start is called before the first frame update
     void Start()
     {
-        if (gameObject.name == StaticObjects.MasterPlayerNumber + "")
+        if (gameObject.name == StaticObjects.MasterPlayerNum + "")
             PlayerCamera = GameObject.Find("MainCamera").GetComponent<Camera>();
         PlayerPv = GetComponent<PhotonView>();
         Character = GetComponent<Rigidbody>();
@@ -97,7 +97,7 @@ public class PlayerController : MonoBehaviour, IPunObservable
             CurrentRotationY = 0;
         transform.rotation = Quaternion.Euler(0, CurrentRotationY, 0);
 
-        if (gameObject.name == StaticObjects.MasterPlayerNumber + "")
+        if (gameObject.name == StaticObjects.MasterPlayerNum + "")
         {
             Debug.Log(PlayerCamera);
             PlayerCamera.transform.rotation = Quaternion.Euler(10, CurrentRotationY, 0);

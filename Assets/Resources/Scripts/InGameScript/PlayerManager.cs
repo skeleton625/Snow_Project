@@ -14,7 +14,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     private PhotonView StaticPv;
     // GameScene 내 모든 오브젝트 관리 객체
     [SerializeField]
-    private ObjectManager Models;
+    private InGameObjectManager Models;
     // GameScene 내 각 플레이어의 피해 값 변수
     [SerializeField]
     private float[] PlayerAttackDamage;
@@ -72,14 +72,14 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             _player.GetComponent<PlayerAttribute>().PlayerName = 
                                            PhotonNetwork.PlayerList[i].NickName.Split('_')[0];
 
-            GetComponent<ObjectManager>().GenAttackSnowBall(i);
-            GetComponent<ObjectManager>().GenAttackEffect(i);
+            GetComponent<InGameObjectManager>().GenAttackSnowBall(i);
+            GetComponent<InGameObjectManager>().GenAttackEffect(i);
             _player.GetComponent<PlayerController>().enabled = true;
             _player.GetComponent<AttackController>().enabled = true;
             _player.GetComponent<PlayerAttribute>().enabled = true;
             _player.GetComponent<UIController>().enabled = true;
         }
-        StaticPv.RPC("SetPlayerReady", RpcTarget.All, StaticObjects.MasterPlayerNumber);
+        StaticPv.RPC("SetPlayerReady", RpcTarget.All, StaticObjects.MasterPlayerNum);
     }
     private void SettingKillingBlocks(string _player, string _attackPlayer)
     {
@@ -164,7 +164,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         GameObject _player = Models.GetPlayerModels(_num);
 
         // 죽는 플레이어가 클라이언트의 플레이어일 경우
-        if (_num == StaticObjects.MasterPlayerNumber)
+        if (_num == StaticObjects.MasterPlayerNum)
         {
             MainCamera.transform.parent = null;
             StartCoroutine(MainCamera.GetComponent<MasterUIManager>().ActivateDeadScene(5));

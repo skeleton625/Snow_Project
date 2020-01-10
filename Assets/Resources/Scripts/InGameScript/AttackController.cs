@@ -20,16 +20,16 @@ public class AttackController : MonoBehaviour
     private PhotonView PlayerPv;
     private MasterUIManager UIManager;
     private PlayerManager PManager;
-    private ObjectManager Models;
+    private InGameObjectManager Models;
     
     private bool IsAttack;
     private bool isProtected;
 
     void Start()
     {
-        GameObject staticObj = GameObject.Find("StaticObjects");
-        PManager = staticObj.GetComponent<PlayerManager>();
-        Models = staticObj.GetComponent<ObjectManager>();
+        GameObject OManager = GameObject.Find("InGameObjectManager");
+        PManager = OManager.GetComponent<PlayerManager>();
+        Models = OManager.GetComponent<InGameObjectManager>();
         PlayerPv = GetComponent<PhotonView>();
 
         if (PlayerPv.IsMine)
@@ -58,7 +58,7 @@ public class AttackController : MonoBehaviour
         if(Input.GetMouseButton(0) && IsAttack)
         {
             PlayerPv.RPC("SendGetSnowBall",RpcTarget.All, 
-                         StaticObjects.MasterPlayerNumber, BallGeneratePos.position, BallGeneratePos.rotation);
+                         StaticObjects.MasterPlayerNum, BallGeneratePos.position, BallGeneratePos.rotation);
             IsAttack = false;
         }
     }
@@ -96,7 +96,7 @@ public class AttackController : MonoBehaviour
                                     PManager.GetPlayerDamage(_attackPlayer);
         AttackedPlayer.GetComponent<UIController>().SetPlayerHealthBar();
 
-        if(_player != StaticObjects.MasterPlayerNumber)
+        if(_player != StaticObjects.MasterPlayerNum)
             AttackedPlayer.GetComponent<UIController>().VisibleHealthBar();
 
         // 공격 당한 플레이어의 체력이 0보다 작을 경우, 해당 플레이어 사망
