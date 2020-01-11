@@ -18,28 +18,33 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     // GameScene 내 각 플레이어의 피해 값 변수
     [SerializeField]
     private float[] PlayerAttackDamage;
-    // 플레이어 숫자 변수
-    [SerializeField]
-    private int PlayerNumbers;
 
     // KillBlock UI 객체
     [SerializeField]
     private GameObject[] KillingList;
+    [SerializeField]
+    private int AllPlayerNumbers;
     // 모든 플레이어의 킬, 죽은 횟수
     private Dictionary<string, int> KillDict;
 
+    // 현재 플레이어 명 수
+    private int PlayerNumbers;
     // 모든 플레이어 준비 파악 변수
     private bool[] PlayerReady;
+    private MasterUIManager MUManager;
 
-    void Awake()
+    private void Awake()
     {
-        // 각 플레이어 준비 변수 초기화
+        PlayerNumbers = PhotonNetwork.PlayerList.Length;
+
+        // 각 플레이어 준비 및 변수 초기화
         KillDict = new Dictionary<string, int>();
-        PlayerReady = new bool[PlayerNumbers];
+        PlayerReady = new bool[AllPlayerNumbers];
+        MUManager = MainCamera.GetComponent<MasterUIManager>();
         for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
             KillDict.Add(PhotonNetwork.PlayerList[i].NickName, 0);
     }
-    void Start()
+    private void Start()
     {
         CreateAllPlayer();
         StartCoroutine(GamePlayCoroutine());
@@ -57,7 +62,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     {
         int _playerNums = PhotonNetwork.PlayerList.Length;
         // 모든 플레이어에 대해 설정 시작
-        for (int i = 0; i < PlayerNumbers; i++)
+        for (int i = 0; i < AllPlayerNumbers; i++)
         {
             // 남은 플레이어 모델의 경우 비활성화
             if(i >= _playerNums)
@@ -126,12 +131,10 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
             yield return null;
         }
 
-        MasterUIManager MasterUI = MainCamera.GetComponent<MasterUIManager>();
+        yield return StartCoroutine(MUManager.ActivateGameStart(3));
+        yield return StartCoroutine(MUManager.ClockingGameTimeCoroutine());
 
-        yield return StartCoroutine(MasterUI.ActivateGameStart(3));
-        yield return StartCoroutine(MasterUI.ClockingGameTimeCoroutine());
-
-        MasterUI.ViewPlayerKillList(KillDict);
+        MUManager.ViewPlayerKillList(KillDict);
         for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
         {
             GameObject _player = Models.GetPlayerModels(i);
@@ -144,12 +147,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
     private void SetPlayerReady(int _num)
     {
         PlayerReady[_num] = true;
-    }
-
-    [PunRPC]
-    private void PlayerDeactive(int _num)
-    {
-        Models.GetPlayerModels(_num).SetActive(false);
     }
 
     [PunRPC]
@@ -178,6 +175,27 @@ public class PlayerManager : MonoBehaviourPunCallbacks, IPunObservable
         SettingKillingBlocks(_playerName, _attackPlayerName);
         PlayerDeadCoroutine(_num, _player.transform.position, _player.transform.localEulerAngles, 5);
         _player.SetActive(false);
+    }
+
+
+    [PunRPC]
+    private void PlayerDeactive(int _num)
+    {
+        Models.GetPlayerModels(_num).SetActive(false);
+        --PlayerNumbers;
+        if (PlayerNumbers < 2)
+        {
+            StopAllCoroutines();
+            Debug.Log("Hello");
+            MUManager.GameSet();
+            MUManager.ViewPlayerKillList(KillDict);
+            for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
+            {
+                GameObject _player = Models.GetPlayerModels(i);
+                _player.GetComponent<PlayerController>().enabled = false;
+                _player.GetComponent<AttackController>().enabled = false;
+            }
+        }
     }
 
     public float GetPlayerDamage(int _player)

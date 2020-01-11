@@ -8,7 +8,7 @@ public class InButtonManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        PManager = GameObject.Find("StaticObjects").GetComponent<PlayerManager>();
+        PManager = GameObject.Find("InGameObjectManager").GetComponent<PlayerManager>();
     }
 
     public void ReturnToLobbyButtonClick()

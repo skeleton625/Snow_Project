@@ -112,13 +112,9 @@ public class MasterUIManager : MonoBehaviour
             _timer.text = _min + " : " + _sec;
         }
 
-        TimerLayer.SetActive(false);
-        GameSetLayer.SetActive(true);
-        MainHealthBar.SetActive(false);
+        // 게임 종료 함수 실행
+        GameSet();
 
-        IsGameEnd = true;
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
         yield return null;
     }
 
@@ -133,5 +129,17 @@ public class MasterUIManager : MonoBehaviour
             PlayerRank[i].text = _pair.Key.Split('_')[0];
             if (KillDict.Count > i) i++;
         }
+    }
+
+    public void GameSet()
+    {
+
+        TimerLayer.SetActive(false);
+        GameSetLayer.SetActive(true);
+        MainHealthBar.SetActive(false);
+
+        IsGameEnd = true;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
     }
 }
