@@ -5,13 +5,16 @@ using Photon.Pun;
 
 public class InGameObjectManager : MonoBehaviour
 {
-    // 플레이어 오브젝트 관련 객체들
+    // 플레이어 캐릭터 관련 오브젝트들
     [SerializeField]
     private Transform[] Beacons;
     [SerializeField]
-    private GameObject[] Players;
+    private string[] PlayerTypes;
     [SerializeField]
-    private GameObject[] PlayerDeads;
+    private string[] PlayerDeadTypes;
+    private GameObject[] PlayerModels = new GameObject[4];
+    private GameObject[] PlayerDeadModels = new GameObject[4];
+
     // 플레이어 죽음 효과 오브젝트
     [SerializeField]
     private string PlayerDeadEffectPos;
@@ -30,20 +33,35 @@ public class InGameObjectManager : MonoBehaviour
     // 각 플레이어당 할당된 눈덩이 개수
     [SerializeField]
     private int EachBallCount;
-
-    // 눈덩이 위치 함수
+    // 실제 눈덩이의 위치
     [SerializeField]
     private Vector3 BallGenPos;
-
-    // 눈덩이 ViewID 번호
     private int BallCount = 6;
 
     void Awake()
     {
+        // 공 배열 및 공 탄창 초기화
         BallArray = new GameObject[4, EachBallCount];
         BallCylinder = new Queue<int>[4];
         for (int i = 0; i < 4; i++)
             BallCylinder[i] = new Queue<int>();
+    }
+
+    /* 해당 씬의 시작 시, 필요한 오브젝트 생성 함수들 */
+    public bool GenPlayerObjects(int _MPN, int _MPMN)
+    {
+        GameObject _player = Instantiate(Resources.Load("Prefabs/"+PlayerTypes[_MPMN]) as GameObject, Beacons[_MPN].transform.position, Quaternion.identity);
+        GameObject _dead = Instantiate(Resources.Load("Prefabs/" + PlayerDeadTypes[_MPMN]) as GameObject, Beacons[_MPN].transform.position, Quaternion.identity);
+        PhotonView _pv = _player.GetComponent<PhotonView>();
+        
+        _pv.TransferOwnership(PhotonNetwork.PlayerList[_MPN]);
+        _pv.ViewID = _MPN + 1;
+        _player.name = _MPN + "";
+        _dead.SetActive(false);
+        PlayerModels[_MPN] = _player;
+        PlayerDeadModels[_MPN] = _dead;
+
+        return true;
     }
 
     public void GenAttackEffect(int _num)
@@ -69,7 +87,7 @@ public class InGameObjectManager : MonoBehaviour
             _ball.name = _num + "_" + j;
             _ball.GetComponent<BallController>().BallControllerInit(_num, j, this);
             _ball.GetComponent<PhotonView>().TransferOwnership(PhotonNetwork.PlayerList[_num]);
-            _ball.GetComponent<PhotonView>().ViewID = BallCount;
+            _ball.GetComponent<PhotonView>().ViewID = _num*10 + BallCount;
             ++BallCount;
 
             // 비활성화 상태로 Queue에 추가
@@ -79,7 +97,7 @@ public class InGameObjectManager : MonoBehaviour
         }
     }
 
-    // 플레이어 관련 함수들
+    /* 플레이어 관련 함수들 */
     public Transform GetBeacons(int _num)
     {
         return Beacons[_num];
@@ -87,14 +105,14 @@ public class InGameObjectManager : MonoBehaviour
 
     public GameObject GetPlayerModels(int _num)
     {
-        return Players[_num];
+        return PlayerModels[_num];
     }
 
     public IEnumerator PlayerDeadMotion(int _num, Vector3 _deadPos, Vector3 _deadRot)
     {
-        PlayerDeads[_num].transform.position = _deadPos;
-        PlayerDeads[_num].transform.rotation = Quaternion.Euler(_deadRot);
-        PlayerDeads[_num].SetActive(true);
+        PlayerDeadModels[_num].transform.position = _deadPos;
+        PlayerDeadModels[_num].transform.rotation = Quaternion.Euler(_deadRot);
+        PlayerDeadModels[_num].SetActive(true);
         // 죽음 이펙트 표현
         GameObject _deadEffect =
             Instantiate(Resources.Load(PlayerDeadEffectPos) as GameObject, 
@@ -106,18 +124,18 @@ public class InGameObjectManager : MonoBehaviour
         while(_rot > -90f)
         {
             _rot = Mathf.Lerp(_rot, -91f, 0.1f);
-            PlayerDeads[_num].transform.localEulerAngles = new Vector3(_rot, _deadRot.y, 0);
+            PlayerDeadModels[_num].transform.localEulerAngles = new Vector3(_rot, _deadRot.y, 0);
             yield return null;
         }
 
         // 죽는 오브젝트 1초 후에 원래 각도로 변경한 뒤, 비활성화 함
         yield return new WaitForSeconds(0.5f);
-        PlayerDeads[_num].transform.position = new Vector3(-6, 0, -6);
-        PlayerDeads[_num].transform.rotation = Quaternion.identity;
-        PlayerDeads[_num].SetActive(false);
+        PlayerDeadModels[_num].transform.position = new Vector3(-6, 0, -6);
+        PlayerDeadModels[_num].transform.rotation = Quaternion.identity;
+        PlayerDeadModels[_num].SetActive(false);
     }
 
-    // 눈덩이 관련 함수들
+    /* 눈덩이 관련 함수들 */
     public void GetSnowBall(int _player, Vector3 pos, Quaternion rot)
     {
         GameObject _ball = BallArray[_player, BallCylinder[_player].Dequeue()];
