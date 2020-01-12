@@ -28,16 +28,17 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private int PlayerNumbers;
     // 모든 플레이어 준비 파악 변수
     private int PlayerReady;
-    private int PlayerInit;
+    private bool[] PlayerInit;
     private MasterUIManager MUManager;
-    private void Awake()
+    void Awake()
     {
+        PhotonNetwork.IsMessageQueueRunning = true;
         // 현재 플레이어 명 수 초기화
         PlayerNumbers = PhotonNetwork.PlayerList.Length;
-        PlayerInit = PlayerNumbers;
         PlayerReady = PlayerNumbers;
         // 마스터 플레이어의 MasterUIManager 스크립트 정의
         MUManager = MainCamera.GetComponent<MasterUIManager>();
+        PlayerInit = new bool[PlayerNumbers];
         // 킬 리스트 관련 변수 초기화
         KillDict = new Dictionary<string, int>();
         for (int i = 0; i < PhotonNetwork.PlayerList.Length; i++)
@@ -78,8 +79,20 @@ public class PlayerManager : MonoBehaviourPunCallbacks
 
     private IEnumerator GamePlayCoroutine()
     {
-        while (PlayerInit > 0)
+        while(true)
+        {
+            int _cnt = 0;
+            for(int i = 0; i < PlayerNumbers; i++)
+            {
+                if (PlayerInit[i])
+                    ++_cnt;
+            }
+
+            if (_cnt == PlayerNumbers)
+                break;
+            StaticPv.RPC("IsConnected", RpcTarget.All, StaticObjects.MasterPlayerNum);
             yield return null;
+        }
         // 현재 게임에서 사용할 캐릭터 오브젝트 생성
         StaticPv.RPC("InitPlayerModels", RpcTarget.All, StaticObjects.MasterPlayerNum, StaticObjects.MasterPlayerModelNum);
 
@@ -165,6 +178,13 @@ public class PlayerManager : MonoBehaviourPunCallbacks
         yield return new WaitForSeconds(5f);
 
         KillingList[_num].SetActive(false);
+    }
+
+    [PunRPC]
+    private void IsConnected(int _num)
+    {
+        Debug.Log(_num);
+        PlayerInit[_num] = true;
     }
 
     [PunRPC]
