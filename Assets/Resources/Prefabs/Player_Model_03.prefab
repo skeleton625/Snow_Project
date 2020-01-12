@@ -2455,7 +2455,7 @@ GameObject:
   - component: {fileID: 2112873880964004905}
   - component: {fileID: 2112873880964004908}
   - component: {fileID: 2112873880964004911}
-  - component: {fileID: 2112873880964004909}
+  - component: {fileID: 914572835640342509}
   m_Layer: 0
   m_Name: Player_Model_03
   m_TagString: Untagged
@@ -2545,7 +2545,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerNumber: 0
   playerDamage: 0
-  playerHealthMax: 0
 --- !u!114 &2112873880964004905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2595,7 +2594,7 @@ MonoBehaviour:
   HealthBar: {fileID: 2112873881788639264}
   HealthUI: {fileID: 2112873882296319355}
   PlayerAtt: {fileID: 2112873880964004910}
---- !u!114 &2112873880964004909
+--- !u!114 &914572835640342509
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
