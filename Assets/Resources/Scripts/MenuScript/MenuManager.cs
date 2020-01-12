@@ -19,7 +19,12 @@ public class MenuManager : MonoBehaviour
     private MenuUIManager UManager;
     private InMenuObjectManager OManager;
 
-    void Start()
+    private void Awake()
+    {
+        PhotonNetwork.AutomaticallySyncScene = true;
+    }
+
+    private void Start()
     {
         // 싱글톤 변수 할당
         UManager = MenuUIManager.instance;
@@ -33,7 +38,7 @@ public class MenuManager : MonoBehaviour
             SetMenuActive(1, null);
     }
 
-    void Update()
+    private void Update()
     {
         if (MenuNetwork.IsLobbyUpdate)
             DisplayRoomButtons();
@@ -250,7 +255,8 @@ public class MenuManager : MonoBehaviour
         OManager.DesideActivateModel();
         StaticObjects.MasterPlayerNum = PlayerNumber;
         StaticObjects.GamePlayTime = _timer;
-        SceneManager.LoadScene("GameScene");
+        PhotonNetwork.IsMessageQueueRunning = false;
+        PhotonNetwork.LoadLevel("GameScene");
     }
 
     [PunRPC]
