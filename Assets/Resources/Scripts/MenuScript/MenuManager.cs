@@ -169,9 +169,9 @@ public class MenuManager : MonoBehaviour
             // 각 플레이어의 방에 변경된 정보(준비됨, 준비되지 않음)를 갱신함
             if (PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
             {
+                PlayerNumber = i;
                 PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + "_" + i;
                 PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, MasterPlayerReady);
-                PlayerNumber = i;
             }
             UManager.SetPlayerNameInRoom(i, _playerList[i].NickName.Split('_')[0]);
         }
@@ -247,6 +247,7 @@ public class MenuManager : MonoBehaviour
     [PunRPC]
     public void PlayerStartGame(int _timer)
     {
+        OManager.DesideActivateModel();
         StaticObjects.MasterPlayerNum = PlayerNumber;
         StaticObjects.GamePlayTime = _timer;
         SceneManager.LoadScene("GameScene");
