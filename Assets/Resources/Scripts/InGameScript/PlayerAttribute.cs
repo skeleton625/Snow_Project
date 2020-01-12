@@ -20,11 +20,11 @@ public class PlayerAttribute : MonoBehaviour
         set { playerDamage = value; }
     }
     // Player의 최대 체력
-    [SerializeField]
-    private float playerHealthMax;
+    private float playerHealthMax = 100;
     public float PlayerHealthMax
     {
         get { return playerHealthMax; }
+        set { playerHealthMax = value; }
     }
 
     private float playerHealth;
