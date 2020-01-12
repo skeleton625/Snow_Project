@@ -75,7 +75,7 @@ public class AttackController : MonoBehaviour
         if (collision.gameObject.tag == "SnowBall")
         {
             // 공격한 사람과 당한 사람 번호를 정의
-            int _player = collision.gameObject.GetComponent<PlayerAttribute>().PlayerNumber;
+            int _player = int.Parse(collision.gameObject.name.Split('_')[0]);
             int _me = int.Parse(gameObject.name);
             // 자기 공에 대해선 무시
             if (_player == _me)
