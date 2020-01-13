@@ -32,6 +32,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private MasterUIManager MUManager;
     void Awake()
     {
+        PhotonNetwork.AutomaticallySyncScene = true;
         PhotonNetwork.IsMessageQueueRunning = true;
         // 현재 플레이어 명 수 초기화
         PlayerNumbers = PhotonNetwork.PlayerList.Length;
@@ -183,7 +184,6 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     [PunRPC]
     private void IsConnected(int _num)
     {
-        Debug.Log(_num);
         PlayerInit[_num] = true;
     }
 

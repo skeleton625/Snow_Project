@@ -13,6 +13,7 @@ public class InButtonManager : MonoBehaviour
 
     public void ReturnToLobbyButtonClick()
     {
+        PhotonNetwork.AutomaticallySyncScene = false;
         PManager.PlayerOutTheGame(StaticObjects.MasterPlayerNum);
         SceneManager.LoadScene("MainMenu");
     }
