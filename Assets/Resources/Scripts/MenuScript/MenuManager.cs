@@ -164,11 +164,11 @@ public class MenuManager : MonoBehaviour
 
     private void SettingRoomPlayers()
     {
-        // 현재 방 정보를 초기화함
-        UManager.SetPreRoomName(MenuNetwork.GetCurrentRoomName());
-
         // 현재 방의 플레이어 정보를 가져옴
         Player[] _playerList = MenuNetwork.GetPlayerList();
+        // 현재 방 정보를 초기화함
+        UManager.SetPreRoomName(MenuNetwork.GetCurrentRoomName(), _playerList.Length);
+
         for (int i = 0; i < _playerList.Length; i++)
         {
             // 각 플레이어의 방에 변경된 정보(준비됨, 준비되지 않음)를 갱신함

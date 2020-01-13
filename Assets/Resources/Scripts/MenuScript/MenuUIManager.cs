@@ -62,9 +62,17 @@ public class MenuUIManager : MonoBehaviour
         return RoomNameInput.text;
     }
 
-    public void SetPreRoomName(string _name)
+    public void SetPreRoomName(string _name, int _len)
     {
         RoomHeaderText.text = _name;
+        for(int i = 0; i < 4; i++)
+        {
+            if (i >= _len)
+            {
+                SetPlayerNameInRoom(i, "None");
+                SetPlayerReadyInRoom(i, false);
+            }
+        }
     }
 
     public void SetUIActive(int _num, bool _isActive)
