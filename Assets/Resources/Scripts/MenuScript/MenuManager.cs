@@ -19,11 +19,6 @@ public class MenuManager : MonoBehaviour
     private MenuUIManager UManager;
     private InMenuObjectManager OManager;
 
-    private void Awake()
-    {
-        PhotonNetwork.AutomaticallySyncScene = true;
-    }
-
     private void Start()
     {
         // 싱글톤 변수 할당
@@ -175,10 +170,10 @@ public class MenuManager : MonoBehaviour
             if (PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
             {
                 PlayerNumber = i;
-                PhotonNetwork.NickName = PhotonNetwork.NickName.Split('_')[0] + "_" + i;
+                PhotonNetwork.NickName = StaticObjects.MasterPlayerName + "_" + i;
                 PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, MasterPlayerReady);
             }
-            UManager.SetPlayerNameInRoom(i, _playerList[i].NickName.Split('_')[0]);
+            UManager.SetPlayerNameInRoom(i, StaticObjects.MasterPlayerName);
         }
         // 방 정보가 갱신되었음을 정의
         MenuNetwork.IsRoomUpdate = false;
@@ -199,6 +194,7 @@ public class MenuManager : MonoBehaviour
                 while (!MenuNetwork.IsLobby())
                     yield return null;
 
+                UManager.SetPlayerNameInLobby(StaticObjects.MasterPlayerName);
                 // 들어갔을 경우, 현재 존재하는 방 버튼을 Lobby에 정의
                 DisplayRoomButtons();
                 break;

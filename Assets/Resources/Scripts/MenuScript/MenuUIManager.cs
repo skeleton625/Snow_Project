@@ -51,7 +51,8 @@ public class MenuUIManager : MonoBehaviour
         if (_name == "")
             _name = "NoName";
         // 플레이어가 입력한 이름을 메인 로비 플레이어 텍스트에 입력
-        UserNameText.text = _name;
+        SetPlayerNameInLobby(_name);
+        StaticObjects.MasterPlayerName = _name;
         // 플레이어가 입력한 이름을 반환
         return _name;
     }
@@ -60,6 +61,11 @@ public class MenuUIManager : MonoBehaviour
     {
         StaticObjects.GamePlayTime = int.Parse(PlayTimeInput.text);
         return RoomNameInput.text;
+    }
+
+    public void SetPlayerNameInLobby(string _name)
+    {
+        UserNameText.text = _name;
     }
 
     public void SetPreRoomName(string _name, int _len)
