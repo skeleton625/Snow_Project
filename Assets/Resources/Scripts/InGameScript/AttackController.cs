@@ -18,22 +18,30 @@ public class AttackController : MonoBehaviour
     private float CurAttackTime;
     // 플레이어의 PhotonView 객체
     private PhotonView PlayerPv;
-    private MasterUIManager UIManager;
+    // GameManager 스크립트
     private PlayerManager PManager;
-    private InGameObjectManager Models;
-    
+    // 마스터 플레이어 UI 스크립트
+    private MasterUIManager UIManager;
+    // 게임 내부 오브젝트 관리 스크립트
+    private InGameObjectManager OManager;
+    // 오디오 관리 오브젝트
+    private AudioManager AManager;
     private bool IsAttack;
     private bool isProtected;
 
     void Start()
     {
-        GameObject OManager = GameObject.Find("InGameObjectManager");
-        PManager = OManager.GetComponent<PlayerManager>();
-        Models = OManager.GetComponent<InGameObjectManager>();
+        PManager = GameObject.Find("InGameObjectManager").GetComponent<PlayerManager>();
+        OManager = InGameObjectManager.instance;
         PlayerPv = GetComponent<PhotonView>();
 
         if (PlayerPv.IsMine)
-            UIManager = GameObject.Find("MainCamera").GetComponent<MasterUIManager>();
+        {
+            GameObject MainCamera = GameObject.Find("Main Camera");
+            UIManager = MainCamera.GetComponent<MasterUIManager>();
+            AManager = MainCamera.GetComponent<AudioManager>();
+        }
+            
     }
 
     // Update is called once per frame
@@ -45,8 +53,10 @@ public class AttackController : MonoBehaviour
 
     private void TryAttack()
     {
+        // 플레이어가 공격 불가능할 경우
         if(!IsAttack)
         {
+            // 플레이어의 다음 공격까지 남은 시간을 측정
             CurAttackTime += Time.deltaTime;
             if(CurAttackTime > AttackCycle)
             {
@@ -55,10 +65,16 @@ public class AttackController : MonoBehaviour
             }
         }
 
+        // 플레이어가 공격이 가능하고 공격 버튼을 눌렀을 경우
         if(Input.GetMouseButton(0) && IsAttack)
         {
+            if (AManager)
+                // 공격 사운드 출력
+                AManager.PlayAudioEffect(2);
+            // 플레이어의 공이 날려졌음을 다른 플레이어들에게 알림
             PlayerPv.RPC("SendGetSnowBall",RpcTarget.All, 
                          StaticObjects.MasterPlayerNum, BallGeneratePos.position, BallGeneratePos.rotation);
+            // 바로 공격 불가능하도록 공격 불가능 정의
             IsAttack = false;
         }
     }
@@ -66,7 +82,7 @@ public class AttackController : MonoBehaviour
     [PunRPC]
     private void SendGetSnowBall(int _player, Vector3 pos, Quaternion rot)
     {
-        Models.GetSnowBall(_player, pos, rot);
+        OManager.GetSnowBall(_player, pos, rot);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -91,7 +107,7 @@ public class AttackController : MonoBehaviour
     private void SendPlayerAttacked(int _player, int _attackPlayer)
     {
         // 각 플레이어 모델에 피해 적용
-        GameObject AttackedPlayer = Models.GetPlayerModels(_player);
+        GameObject AttackedPlayer = OManager.GetPlayerModels(_player);
         AttackedPlayer.GetComponent<PlayerAttribute>().PlayerHealth =
                                     PManager.GetPlayerDamage(_attackPlayer);
         AttackedPlayer.GetComponent<UIController>().SetPlayerHealthBar();

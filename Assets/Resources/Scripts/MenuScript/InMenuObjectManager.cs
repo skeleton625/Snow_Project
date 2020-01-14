@@ -31,6 +31,7 @@ public class InMenuObjectManager : MonoBehaviour
 
     public void DesideActivateModel()
     {
+        // 현재 플레이어가 선택한 모델을 게임 모델로 정의
         StaticObjects.MasterPlayerModelNum = PreModelNum;
     }
 }

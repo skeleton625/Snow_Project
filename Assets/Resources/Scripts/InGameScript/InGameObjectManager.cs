@@ -38,8 +38,11 @@ public class InGameObjectManager : MonoBehaviour
     private Vector3 BallGenPos;
     private int BallCount = 6;
 
+    public static InGameObjectManager instance;
+
     void Awake()
     {
+        instance = this;
         // 공 배열 및 공 탄창 초기화
         BallArray = new GameObject[4, EachBallCount];
         BallCylinder = new Queue<int>[4];

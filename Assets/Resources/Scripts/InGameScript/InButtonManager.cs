@@ -5,8 +5,7 @@ public class InButtonManager : MonoBehaviour
 {
     private PlayerManager PManager;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
         PManager = GameObject.Find("InGameObjectManager").GetComponent<PlayerManager>();
     }
@@ -14,7 +13,7 @@ public class InButtonManager : MonoBehaviour
     public void ReturnToLobbyButtonClick()
     {
         PManager.PlayerOutTheGame(StaticObjects.MasterPlayerNum);
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("MenuScene");
     }
 
     public void GameEndButtonClick()
