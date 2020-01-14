@@ -56,7 +56,7 @@ public class PlayerController : MonoBehaviour, IPunObservable
     void Start()
     {
         if (gameObject.name == StaticObjects.MasterPlayerNum + "")
-            PlayerCamera = GameObject.Find("MainCamera").GetComponent<Camera>();
+            PlayerCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
         PlayerPv = GetComponent<PhotonView>();
         Character = GetComponent<Rigidbody>();
         CharAnimator = GetComponent<Animator>();

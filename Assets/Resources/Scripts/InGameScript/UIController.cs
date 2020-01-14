@@ -26,7 +26,7 @@ public class UIController : MonoBehaviour
     {
         NickNameBar.text = PlayerAtt.PlayerName;
         PlayerPv = GetComponent<PhotonView>();
-        CameraPos = GameObject.Find("MainCamera").transform;
+        CameraPos = GameObject.Find("Main Camera").transform;
         if (PlayerPv.IsMine)
             HealthBar = GameObject.Find("CharacterUI").transform
                                                       .GetChild(0)
