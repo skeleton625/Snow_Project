@@ -65,6 +65,7 @@ public class PhotonNet : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         IsRoomUpdate = true;
+        Debug.Log(otherPlayer);
         base.OnPlayerLeftRoom(otherPlayer);
     }
 
