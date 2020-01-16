@@ -47,16 +47,25 @@ public class PlayerController : MonoBehaviour, IPunObservable
     private Vector3 CurrPos;
     private Quaternion CurrRot;
 
+    // AudioManager 객체
+    private AudioManager AManager;
+    private float SoundCount;
+    private float PreSoundCount;
     // Player가 현재 클라이언트에서 Master인지 확인
     private PhotonView PlayerPv;
     // Player Camera 오브젝트
     private Camera PlayerCamera = null;
-
+   
     // Start is called before the first frame update
     void Start()
     {
         if (gameObject.name == StaticObjects.MasterPlayerNum + "")
-            PlayerCamera = GameObject.Find("Main Camera").GetComponent<Camera>();
+        {
+            GameObject MainCamera = GameObject.Find("Main Camera");
+            PlayerCamera = MainCamera.GetComponent<Camera>();
+            AManager = MainCamera.GetComponent<AudioManager>();
+        }
+            
         PlayerPv = GetComponent<PhotonView>();
         Character = GetComponent<Rigidbody>();
         CharAnimator = GetComponent<Animator>();
@@ -109,6 +118,7 @@ public class PlayerController : MonoBehaviour, IPunObservable
     {
         SideWalk = Input.GetAxisRaw("Horizontal");
         FrontWalk = Input.GetAxisRaw("Vertical");
+
         
         // 수평, 수직에 대한 이동 백터
         Vector3 _moveHorizontal = transform.right * SideWalk;
@@ -119,7 +129,15 @@ public class PlayerController : MonoBehaviour, IPunObservable
 
         // 캐릭터가 움직였는지 확인
         if (FrontWalk != 0 || SideWalk != 0)
+        {
             IsWalk = true;
+            SoundCount -= Time.deltaTime;
+            if(SoundCount <= 0)
+            {
+                SoundCount = PreSoundCount;
+                AManager.PlayAudioEffect(1, 0.1f);
+            }
+        }
         else
             IsWalk = false;
     }
@@ -136,6 +154,7 @@ public class PlayerController : MonoBehaviour, IPunObservable
     // 달릴 때의 함수
     private void Running()
     {
+        PreSoundCount = 0.3f;
         IsRun = true;
         ApplySpeed = RunSpeed;
     }
@@ -143,6 +162,7 @@ public class PlayerController : MonoBehaviour, IPunObservable
     // 달리기를 멈췄을 때의 함수
     private void stopRunning()
     {
+        PreSoundCount = 0.5f;
         IsRun = false;
         ApplySpeed = WalkSpeed;
     }
