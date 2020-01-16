@@ -24,6 +24,8 @@ public class MasterUIManager : MonoBehaviour
     private GameObject ResumeLayer;
     [SerializeField]
     private GameObject MainHealthBar;
+    [SerializeField]
+    private GameObject WaitingLayer;
 
     private int CurrentTime;
     private bool isMouseVisible = true;
@@ -79,6 +81,7 @@ public class MasterUIManager : MonoBehaviour
 
     public IEnumerator ActivateGameStart(float _cnt)
     {
+        WaitingLayer.SetActive(false);
         GameTimer.GetComponent<Text>().text = CurrentTime / 60 + " : " + CurrentTime % 60;
         while (_cnt > 0)
         {

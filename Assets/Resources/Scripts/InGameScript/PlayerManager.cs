@@ -17,6 +17,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     private float[] PlayerAttackDamage;
     [SerializeField]
     private InGameObjectManager OManager;
+    private MasterUIManager MUManager;
 
     // KillBlock UI 객체
     [SerializeField]
@@ -29,7 +30,7 @@ public class PlayerManager : MonoBehaviourPunCallbacks
     // 모든 플레이어 준비 파악 변수
     private int PlayerReady;
     private bool[] PlayerInit;
-    private MasterUIManager MUManager;
+    
     void Awake()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
