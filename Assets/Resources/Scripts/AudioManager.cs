@@ -14,8 +14,8 @@ public class AudioManager : MonoBehaviour
         PlayerAudio = GameObject.Find("Main Camera").GetComponent<AudioSource>();
     }
 
-    public void PlayAudioEffect(int _num)
+    public void PlayAudioEffect(int _num, float _val)
     {
-        PlayerAudio.PlayOneShot(Audios[_num], 1f);
+        PlayerAudio.PlayOneShot(Audios[_num], _val);
     }
 }
