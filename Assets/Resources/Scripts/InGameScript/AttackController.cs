@@ -70,7 +70,7 @@ public class AttackController : MonoBehaviour
         {
             if (AManager)
                 // 공격 사운드 출력
-                AManager.PlayAudioEffect(2);
+                AManager.PlayAudioEffect(2, 1f);
             // 플레이어의 공이 날려졌음을 다른 플레이어들에게 알림
             PlayerPv.RPC("SendGetSnowBall",RpcTarget.All, 
                          StaticObjects.MasterPlayerNum, BallGeneratePos.position, BallGeneratePos.rotation);

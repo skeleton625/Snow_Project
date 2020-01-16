@@ -26,14 +26,12 @@ public class BallController : MonoBehaviour, IPunObservable
         OManager = _OManager;
         BallNumber = _num;
         MasterPlayerNum = _player;
-        AManager = GameObject.Find("Main Camera").GetComponent<AudioManager>();
+        AManager = GetComponent<AudioManager>();
     }
 
     // 공을 던지는 함수
     public IEnumerator ThrowingBall()
     {
-        // 제한된 시간 동안 공이 이동하도록 구현
-        float _time = 0;
         GetComponent<Rigidbody>().velocity = 
             gameObject.transform.forward * BallSpeed *Time.deltaTime;
         yield return new WaitForSeconds(AttackLimitTime);
@@ -49,7 +47,7 @@ public class BallController : MonoBehaviour, IPunObservable
         if (collision.gameObject.tag == "SnowBall")
             return;
 
-        AManager.PlayAudioEffect(1);
+        AManager.PlayAudioEffect(0, 1f);
         // 충돌한 위치에 충돌 효과 코루틴 실행
         Vector3 conflictPos = collision.contacts[0].point;
         Vector3 conflictRot = collision.contacts[0].normal;
