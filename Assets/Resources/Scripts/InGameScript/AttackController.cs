@@ -4,6 +4,8 @@ using Photon.Pun;
 
 public class AttackController : MonoBehaviour
 {
+    [SerializeField]
+    private float KnockBackForce;
     // 공격 주기 변수
     [SerializeField]
     private float AttackCycle;
@@ -16,6 +18,7 @@ public class AttackController : MonoBehaviour
 
     // 플레이어가 공을 던진 후의 시간
     private float CurAttackTime;
+    private Rigidbody PlayerBody;
     // 플레이어의 PhotonView 객체
     private PhotonView PlayerPv;
     // GameManager 스크립트
@@ -28,12 +31,15 @@ public class AttackController : MonoBehaviour
     private AudioManager AManager;
     private bool IsAttack;
     private bool isProtected;
+    private Vector3 KnockBackVector;
 
     void Start()
     {
         PManager = GameObject.Find("InGameObjectManager").GetComponent<PlayerManager>();
         OManager = InGameObjectManager.instance;
         PlayerPv = GetComponent<PhotonView>();
+        PlayerBody = GetComponent<Rigidbody>();
+        KnockBackVector = new Vector3(0, KnockBackForce, KnockBackForce);
 
         if (PlayerPv.IsMine)
         {
@@ -96,6 +102,9 @@ public class AttackController : MonoBehaviour
             // 자기 공에 대해선 무시
             if (_player == _me)
                 return;
+
+            // 공격당한 플레이어를 넉백시킴
+            PlayerBody.AddForce(KnockBackVector, ForceMode.Impulse);
 
             // 공격 당했음을 모두에게 알림
             if (PlayerPv.IsMine)
