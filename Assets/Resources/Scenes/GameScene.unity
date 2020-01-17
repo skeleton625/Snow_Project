@@ -5287,10 +5287,10 @@ MonoBehaviour:
   MainCamera: {fileID: 1121504171}
   StaticPv: {fileID: 1802875184}
   PlayerAttackDamage:
-  - 15
-  - 15
-  - 15
-  - 15
+  - 10
+  - 10
+  - 10
+  - 10
   OManager: {fileID: 1802875183}
   KillingList:
   - {fileID: 650916977}
