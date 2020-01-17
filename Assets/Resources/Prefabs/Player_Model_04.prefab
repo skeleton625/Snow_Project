@@ -2559,6 +2559,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d0f87755008d8742a7fd309e11e1949, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  KnockBackForce: 2.5
   AttackCycle: 0.5
   BallGeneratePos: {fileID: 4075433663031664366}
   ballObjectPos: Prefabs/SnowBall
