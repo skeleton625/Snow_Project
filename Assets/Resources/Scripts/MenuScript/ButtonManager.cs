@@ -11,7 +11,9 @@ public class ButtonManager : MonoBehaviour
     void Start()
     {
         PlayerMenu = GameObject.Find("PhotonNetwork").GetComponent<MenuManager>();
-        AManager = GameObject.Find("Main Camera").GetComponent<AudioManager>();
+        GameObject MainCamera = GameObject.Find("Main Camera");
+        AManager = MainCamera.GetComponent<AudioManager>();
+        AManager.InitAudioManager(MainCamera.GetComponent<AudioSource>());
     }
 
     public void JoinLobbyButtonClick()

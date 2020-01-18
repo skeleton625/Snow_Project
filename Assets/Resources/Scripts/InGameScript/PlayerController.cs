@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using Photon.Pun;
+using System.Collections;
 using UnityEngine;
-using Photon.Pun;
 public class PlayerController : MonoBehaviour, IPunObservable
 {
     // 카메라의 원래 위치 객체
@@ -63,7 +62,8 @@ public class PlayerController : MonoBehaviour, IPunObservable
         {
             GameObject MainCamera = GameObject.Find("Main Camera");
             PlayerCamera = MainCamera.GetComponent<Camera>();
-            AManager = MainCamera.GetComponent<AudioManager>();
+            AManager = GameObject.Find("InGameObjectManager").GetComponent<AudioManager>();
+            AManager.InitAudioManager(MainCamera.GetComponent<AudioSource>());
         }
             
         PlayerPv = GetComponent<PhotonView>();

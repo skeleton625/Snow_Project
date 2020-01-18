@@ -35,7 +35,8 @@ public class AttackController : MonoBehaviour
 
     void Start()
     {
-        PManager = GameObject.Find("InGameObjectManager").GetComponent<PlayerManager>();
+        GameObject OManagerObject = GameObject.Find("InGameObjectManager");
+        PManager = OManagerObject.GetComponent<PlayerManager>();
         OManager = InGameObjectManager.instance;
         PlayerPv = GetComponent<PhotonView>();
         PlayerBody = GetComponent<Rigidbody>();
@@ -45,7 +46,8 @@ public class AttackController : MonoBehaviour
         {
             GameObject MainCamera = GameObject.Find("Main Camera");
             UIManager = MainCamera.GetComponent<MasterUIManager>();
-            AManager = MainCamera.GetComponent<AudioManager>();
+            AManager = OManagerObject.GetComponent<AudioManager>();
+            AManager.InitAudioManager(MainCamera.GetComponent<AudioSource>());
         }
             
     }
