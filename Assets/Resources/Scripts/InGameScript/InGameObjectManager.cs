@@ -74,7 +74,7 @@ public class InGameObjectManager : MonoBehaviour
         {
             // 필요한 효과 오브젝트 생성
             GameObject _effect = Instantiate(AttackEffect, BallGenPos, Quaternion.identity);
-
+            _effect.GetComponent<AudioManager>().InitAudioManager(_effect.GetComponent<AudioSource>());
             // 비활성화 상태로 Queue에 추가
             _effect.SetActive(false);
             EffectCylinder.Enqueue(_effect);
@@ -167,6 +167,7 @@ public class InGameObjectManager : MonoBehaviour
         _effect.SetActive(true);
         _effect.transform.position = pos;
         _effect.transform.rotation = Quaternion.LookRotation(rot);
+        _effect.GetComponent<AudioManager>().PlayAudioEffect(0, 1f);
 
         // 1초 대기
         yield return new WaitForSeconds(1f);
