@@ -2827,7 +2827,6 @@ GameObject:
   - component: {fileID: 1121504172}
   - component: {fileID: 1121504176}
   - component: {fileID: 1121504174}
-  - component: {fileID: 1121504175}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2929,22 +2928,6 @@ MonoBehaviour:
   ResumeLayer: {fileID: 332160980}
   MainHealthBar: {fileID: 470603104}
   WaitingLayer: {fileID: 1150704955}
---- !u!114 &1121504175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1121504170}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 10c98e92357110644904c250be8ad557, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Audios:
-  - {fileID: 8300000, guid: e32843eb1e23df0499d348597a63aa38, type: 3}
-  - {fileID: 8300000, guid: 620c7655f992e9f449f49dfcc07d739e, type: 3}
-  - {fileID: 8300000, guid: 5a8a6ea9b9c3d354db3368061ec4a111, type: 3}
 --- !u!82 &1121504176
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2966,7 +2949,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 3
+  MaxDistance: 5
   Pan2D: 0
   rolloffMode: 1
   BypassEffects: 0
@@ -5264,6 +5247,7 @@ GameObject:
   - component: {fileID: 1802875182}
   - component: {fileID: 1802875181}
   - component: {fileID: 1802875183}
+  - component: {fileID: 1802875185}
   - component: {fileID: 1802875184}
   m_Layer: 0
   m_Name: InGameObjectManager
@@ -5373,6 +5357,22 @@ MonoBehaviour:
   viewIdField: 5
   InstantiationId: 0
   isRuntimeInstantiated: 0
+--- !u!114 &1802875185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1802875180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10c98e92357110644904c250be8ad557, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Audios:
+  - {fileID: 8300000, guid: e32843eb1e23df0499d348597a63aa38, type: 3}
+  - {fileID: 8300000, guid: 620c7655f992e9f449f49dfcc07d739e, type: 3}
+  - {fileID: 8300000, guid: 5a8a6ea9b9c3d354db3368061ec4a111, type: 3}
 --- !u!1001 &1849945944
 PrefabInstance:
   m_ObjectHideFlags: 0
