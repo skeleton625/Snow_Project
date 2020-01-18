@@ -17,7 +17,6 @@ public class BallController : MonoBehaviour, IPunObservable
     // 공 관리 객체
     [SerializeField]
     private InGameObjectManager OManager;
-    private AudioManager AManager;
     private int MasterPlayerNum;
     private int BallNumber;
 
@@ -26,7 +25,6 @@ public class BallController : MonoBehaviour, IPunObservable
         OManager = _OManager;
         BallNumber = _num;
         MasterPlayerNum = _player;
-        AManager = GetComponent<AudioManager>();
     }
 
     // 공을 던지는 함수
@@ -47,7 +45,6 @@ public class BallController : MonoBehaviour, IPunObservable
         if (collision.gameObject.tag == "SnowBall")
             return;
 
-        AManager.PlayAudioEffect(0, 1f);
         // 충돌한 위치에 충돌 효과 코루틴 실행
         Vector3 conflictPos = collision.contacts[0].point;
         Vector3 conflictRot = collision.contacts[0].normal;
