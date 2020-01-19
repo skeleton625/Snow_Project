@@ -10,7 +10,7 @@ public class KillBlock : MonoBehaviour
 
     public void SetPlayerNames(string _killedName, string _killerName)
     {
-        KillerPlayer.GetComponent<Text>().text = _killedName;
-        KilledPlayer.GetComponent<Text>().text = _killerName;
+        KillerPlayer.GetComponent<Text>().text = _killerName;
+        KilledPlayer.GetComponent<Text>().text = _killedName;
     }
 }
