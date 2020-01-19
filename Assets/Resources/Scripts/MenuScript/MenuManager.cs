@@ -171,7 +171,7 @@ public class MenuManager : MonoBehaviour
                 PhotonNetwork.NickName = StaticObjects.MasterPlayerName + "_" + i;
                 PV.RPC("PressReady", RpcTarget.All, StaticObjects.MasterPlayerNum, i, MasterPlayerReady);
             }
-            UManager.SetPlayerNameInRoom(i, StaticObjects.MasterPlayerName);
+            UManager.SetPlayerNameInRoom(i, _playerList[i].NickName.Split('_')[0]);
         }
         // 방 정보가 갱신되었음을 정의
         MenuNetwork.IsRoomUpdate = false;
