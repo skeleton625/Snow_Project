@@ -15,7 +15,6 @@ public class MenuManager : MonoBehaviour
     private bool[] AllPlayerReady;
     private bool MasterPlayerReady;
     private int PreMenuNum;
-    private int PlayerNumber;
     private MenuUIManager UManager;
     private InMenuObjectManager OManager;
 
@@ -26,7 +25,6 @@ public class MenuManager : MonoBehaviour
         OManager = InMenuObjectManager.instance;
 
         // 현재 플레이어 변수 초기화
-        PlayerNumber = 0;
         MasterPlayerReady = false;
         AllPlayerReady = new bool[4];
         if (MenuNetwork.LeaveRoom())
@@ -106,7 +104,7 @@ public class MenuManager : MonoBehaviour
         // 그렇지 않을 경우, 플레이어 방 정보 초기화
         else
         {
-            PlayerNumber = 0;
+            StaticObjects.MasterPlayerNum = 0;
             MasterPlayerReady = false;
 
             for (int i = 0; i < AllPlayerReady.Length; i++)
@@ -118,7 +116,7 @@ public class MenuManager : MonoBehaviour
     public void MasterStartGame()
     {
         // 플레이어가 방장일 경우, 모든 플레이어가 시작 버튼을 눌렀는지 확인
-        if (PlayerNumber == 0)
+        if (StaticObjects.MasterPlayerNum == 0)
         {
             // 누르지 않았을 경우, 오류 팝업창을 띄움
             if (!VerifyPressStartButton())
@@ -134,7 +132,7 @@ public class MenuManager : MonoBehaviour
         else
         {
             MasterPlayerReady = !MasterPlayerReady;
-            PV.RPC("PressReady", RpcTarget.All, PlayerNumber, MasterPlayerReady);
+            PV.RPC("PressReady", RpcTarget.All, StaticObjects.MasterPlayerNum, MasterPlayerReady);
         }
     }
 
@@ -169,9 +167,9 @@ public class MenuManager : MonoBehaviour
             // 각 플레이어의 방에 변경된 정보(준비됨, 준비되지 않음)를 갱신함
             if (PhotonNetwork.LocalPlayer.ActorNumber == _playerList[i].ActorNumber)
             {
-                PlayerNumber = i;
+                StaticObjects.MasterPlayerNum = i;
                 PhotonNetwork.NickName = StaticObjects.MasterPlayerName + "_" + i;
-                PV.RPC("PressReady", RpcTarget.All, PlayerNumber, i, MasterPlayerReady);
+                PV.RPC("PressReady", RpcTarget.All, StaticObjects.MasterPlayerNum, i, MasterPlayerReady);
             }
             UManager.SetPlayerNameInRoom(i, StaticObjects.MasterPlayerName);
         }
@@ -249,7 +247,6 @@ public class MenuManager : MonoBehaviour
     public void PlayerStartGame(int _timer)
     {
         OManager.DesideActivateModel();
-        StaticObjects.MasterPlayerNum = PlayerNumber;
         StaticObjects.GamePlayTime = _timer;
         PhotonNetwork.IsMessageQueueRunning = false;
         PhotonNetwork.LoadLevel("GameScene");

@@ -12,7 +12,9 @@ public class MenuUIManager : MonoBehaviour
     [SerializeField]
     private GameObject[] RoomButtons;
     [SerializeField]
-    private GameObject CharacterModels;
+    private GameObject CharModels;
+    [SerializeField]
+    private GameObject CharSelected;
 
     [SerializeField]
     private InputField UserNameInput;
@@ -84,9 +86,9 @@ public class MenuUIManager : MonoBehaviour
     public void SetUIActive(int _num, bool _isActive)
     {
         if (_num == 3)
-            CharacterModels.SetActive(true);
+            CharModels.SetActive(true);
         else
-            CharacterModels.SetActive(false);
+            CharModels.SetActive(false);
         UI[_num].SetActive(_isActive);
     }
 
@@ -121,9 +123,18 @@ public class MenuUIManager : MonoBehaviour
     public void SetPlayerReadyInRoom(int _playerNum, bool _isReady)
     {
         if (_isReady)
+        {
             PlayerNamesImage[_playerNum].color = Color.green;
+            if (_playerNum == StaticObjects.MasterPlayerNum)
+                CharSelected.SetActive(true);
+        }
         else
+        {
             PlayerNamesImage[_playerNum].color = Color.white;
+            if (_playerNum == StaticObjects.MasterPlayerNum)
+                CharSelected.SetActive(false);
+        }
+            
     }
 
     public void VerifyPopup(int _num, string _inform)
